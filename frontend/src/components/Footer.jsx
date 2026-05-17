@@ -13,7 +13,7 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-6">
               <Hexagon className="h-8 w-8 text-brand-blue" />
               <span className="font-outfit font-bold text-xl tracking-tight text-white">
-                Prime Logitech
+                Prime Logic Tech
               </span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
@@ -67,7 +67,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Mail className="h-5 w-5 text-brand-blue shrink-0" />
-                <span>hello@primelogitech.com</span>
+                <span>hello@primelogictech.com</span>
               </li>
             </ul>
           </div>
@@ -95,7 +95,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Prime Logitech. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Prime Logic Tech. All rights reserved.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-gray-300">Privacy Policy</a>
             <a href="#" className="hover:text-gray-300">Terms of Service</a>

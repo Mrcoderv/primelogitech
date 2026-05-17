@@ -41,7 +41,7 @@ export default function About() {
           animate={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-6xl font-bold mb-6"
         >
-          About <span className="text-gradient">Prime Logitech</span>
+          About <span className="text-gradient">Prime Logic Tech</span>
         </motion.h1>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}

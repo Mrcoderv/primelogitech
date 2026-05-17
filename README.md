@@ -1,6 +1,6 @@
-# Prime Logitech
+# Prime Logic Tech
 
-Prime Logitech is a modern, premium IT startup providing end-to-end digital solutions, including web development, mobile app development, UI/UX design, SEO optimization, cloud solutions, and AI automation.
+Prime Logic Tech is a modern, premium IT startup providing end-to-end digital solutions, including web development, mobile app development, UI/UX design, SEO optimization, cloud solutions, and AI automation.
 
 ## Founders
 - **Prasiddha Gyawali** - CEO & Founder
@@ -13,7 +13,7 @@ Kathmandu, Nepal
 
 ## Project Structure
 
-This repository contains the source code for the Prime Logitech website.
+This repository contains the source code for the Prime Logic Tech website.
 
 - `frontend/` - React frontend application
 - `backend/` - Backend services (if applicable)

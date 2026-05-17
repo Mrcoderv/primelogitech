@@ -24,7 +24,7 @@ export default function Navbar() {
           <div className="flex-shrink-0 flex items-center gap-2">
             <Hexagon className="h-8 w-8 text-brand-blue" />
             <span className="font-outfit font-bold text-xl tracking-tight text-white">
-              Prime Logitech
+              Prime Logic Tech
             </span>
           </div>
 

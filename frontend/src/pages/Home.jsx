@@ -63,7 +63,7 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-blue opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-blue"></span>
               </span>
-              Prime Logitech is now live
+              Prime Logic Tech is now live
             </motion.div>
             
             <motion.h1 
@@ -158,7 +158,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                Why partner with <br /> <span className="text-gradient">Prime Logitech?</span>
+                Why partner with <br /> <span className="text-gradient">Prime Logic Tech?</span>
               </h2>
               <p className="text-gray-400 text-lg mb-8">
                 We don't just write code; we build strategic digital assets. Our approach combines technical excellence with business acumen to deliver measurable results.
@@ -243,7 +243,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">Client Success</h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech.
+              Don't just take our word for it. Hear what our partners have to say about working with Prime Logic Tech.
             </p>
           </div>
           

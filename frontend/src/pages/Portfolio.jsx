@@ -1,10 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import ProjectCard from '../components/ProjectCard';
 import CTASection from '../components/CTASection';
-import { projects } from '../data/mock';
+import { fetchProjects } from '../services/api';
 
 export default function Portfolio() {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProjects()
+      .then(data => setProjects(data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        <Loader2 className="h-12 w-12 text-brand-blue animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full pt-24 lg:pt-32">
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center mb-20">

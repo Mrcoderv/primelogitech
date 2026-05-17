@@ -1,17 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import TeamCard from '../components/TeamCard';
 import CTASection from '../components/CTASection';
-import { team } from '../data/mock';
+import { fetchTeam } from '../services/api';
 import { Target, Eye, Award, Users } from 'lucide-react';
 
 export default function About() {
+  const [team, setTeam] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTeam()
+      .then(data => setTeam(data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
   const stats = [
     { label: "Projects Delivered", value: "150+" },
     { label: "Happy Clients", value: "98%" },
     { label: "Team Members", value: "45+" },
     { label: "Years Experience", value: "10+" }
   ];
+
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center">
+        <Loader2 className="h-12 w-12 text-brand-blue animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full pt-24 lg:pt-32">

@@ -60,3 +60,45 @@ cd frontend
 npm run build
 ```
 This will generate optimized static assets in the `dist/` directory.
+
+## API (Mock)
+
+The backend exposes simple mock JSON endpoints (no database yet):
+
+- `GET /api/services/`
+- `GET /api/projects/`
+- `GET /api/testimonials/`
+- `GET /api/team/`
+- `GET /api/jobs/`
+
+## Contact Form
+
+The contact form on the site uses Formspree for submission. The live Formspree endpoint is already wired in the frontend and does not require a backend mailer.
+
+## Careers / Jobs
+
+The careers page currently displays a placeholder message: "No job available — we will update in future".
+
+## Security & Production Notes
+
+- Settings in `backend/config/settings.py` include recommended security flags which become active when `DEBUG=False`.
+- Before deploying to production:
+   - Set `DEBUG=False` and configure `ALLOWED_HOSTS` appropriately.
+   - Use environment variables for `SECRET_KEY` and other secrets.
+   - Configure SSL/TLS (HTTPS) and a proper domain.
+   - Use a production-grade database and persistent storage for media/static files.
+
+## Branch & Deployment
+
+Changes have been prepared to be pushed on branch `rvBRANCH`.
+
+To create the branch locally, commit your changes and push:
+
+```bash
+git checkout -b rvBRANCH
+git add .
+git commit -m "Site: add mock APIs, Formspree contact, careers placeholder, security defaults"
+git push -u origin rvBRANCH
+```
+
+If push fails due to authentication, ensure your local git has credentials or an SSH key configured for GitHub.

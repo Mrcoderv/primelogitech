@@ -1,8 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = new FormData();
+      payload.append('name', formData.name);
+      payload.append('email', formData.email);
+      payload.append('subject', formData.subject);
+      payload.append('message', formData.message);
+
+      const res = await fetch('https://formspree.io/f/xjgzbpyg', {
+        method: 'POST',
+        body: payload,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (res.ok) {
+        setSuccess(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        setTimeout(() => setSuccess(false), 5000);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        console.error('Formspree error', err);
+        alert('Failed to send message. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full pt-24 lg:pt-32 pb-20">
       <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center mb-16">
@@ -84,65 +132,75 @@ export default function Contact() {
             className="glass-panel p-8"
           >
             <h3 className="text-2xl font-bold mb-6">Send us a Message</h3>
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {success ? (
+              <div className="h-full flex flex-col items-center justify-center py-12 text-center">
+                <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
+                <h4 className="text-xl font-bold text-white mb-2">Message Sent Successfully!</h4>
+                <p className="text-gray-400">We will get back to you as soon as possible.</p>
+              </div>
+            ) : (
+              <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="space-y-2">
-                  <label htmlFor="firstName" className="text-sm font-medium text-gray-300">First Name</label>
+                  <label htmlFor="name" className="text-sm font-medium text-gray-300">Full Name</label>
                   <input 
                     type="text" 
-                    id="firstName"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors"
-                    placeholder="John"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors backdrop-blur-sm"
+                    placeholder="Your full name"
                   />
                 </div>
+
                 <div className="space-y-2">
-                  <label htmlFor="lastName" className="text-sm font-medium text-gray-300">Last Name</label>
+                  <label htmlFor="email" className="text-sm font-medium text-gray-300">Email Address</label>
+                  <input 
+                    type="email" 
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors backdrop-blur-sm"
+                    placeholder="john@example.com"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="subject" className="text-sm font-medium text-gray-300">Subject</label>
                   <input 
                     type="text" 
-                    id="lastName"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors"
-                    placeholder="Doe"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors backdrop-blur-sm"
+                    placeholder="How can we help you?"
                   />
                 </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-300">Email Address</label>
-                <input 
-                  type="email" 
-                  id="email"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors"
-                  placeholder="john@example.com"
-                />
-              </div>
 
-              <div className="space-y-2">
-                <label htmlFor="subject" className="text-sm font-medium text-gray-300">Subject</label>
-                <input 
-                  type="text" 
-                  id="subject"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors"
-                  placeholder="How can we help you?"
-                />
-              </div>
+                <div className="space-y-2">
+                  <label htmlFor="message" className="text-sm font-medium text-gray-300">Message</label>
+                  <textarea 
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    rows={5}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors resize-none backdrop-blur-sm"
+                    placeholder="Tell us about your project..."
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <label htmlFor="message" className="text-sm font-medium text-gray-300">Message</label>
-                <textarea 
-                  id="message"
-                  rows={5}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-brand-blue text-white transition-colors resize-none"
-                  placeholder="Tell us about your project..."
-                />
-              </div>
-
-              <button 
-                type="submit"
-                className="w-full bg-gradient-brand py-4 px-6 rounded-xl text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                Send Message <Send className="h-5 w-5" />
-              </button>
-            </form>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-brand py-4 px-6 rounded-xl text-white font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Send Message <Send className="h-5 w-5" /></>}
+                </button>
+              </form>
+            )}
           </motion.div>
         </div>
       </section>

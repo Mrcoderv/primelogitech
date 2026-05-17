@@ -1,14 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ServiceCard from '../components/ServiceCard';
 import ProjectCard from '../components/ProjectCard';
 import TestimonialCard from '../components/TestimonialCard';
 import CTASection from '../components/CTASection';
-import { services, projects, testimonials } from '../data/mock';
+import { fetchServices, fetchProjects, fetchTestimonials } from '../services/api';
+// Mapping icon names from backend to Lucide components
+import * as Icons from 'lucide-react';
 
 export default function Home() {
+  const [services, setServices] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [servicesData, projectsData, testimonialsData] = await Promise.all([
+          fetchServices(),
+          fetchProjects(),
+          fetchTestimonials()
+        ]);
+        setServices(servicesData);
+        setProjects(projectsData);
+        setTestimonials(testimonialsData);
+      } catch (error) {
+        console.error("Failed to fetch home data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center pt-20">
+        <Loader2 className="h-12 w-12 text-brand-blue animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -101,13 +136,18 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.slice(0, 6).map((service, index) => (
-              <ServiceCard 
-                key={service.title}
-                {...service}
-                delay={index * 0.1}
-              />
-            ))}
+            {services.slice(0, 6).map((service, index) => {
+              const IconComponent = Icons[service.icon] || Icons.Code;
+              return (
+                <ServiceCard 
+                  key={service.title}
+                  title={service.title}
+                  description={service.description}
+                  icon={IconComponent}
+                  delay={index * 0.1}
+                />
+              );
+            })}
           </div>
         </div>
       </section>

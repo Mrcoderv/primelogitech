@@ -2,4 +2,5 @@ Django>=5.0,<6.1
 djangorestframework>=3.15.1
 django-cors-headers>=4.3.1
 gunicorn>=21.2.0
-whitenoise>=7.1.0
+# Pin to a 6.x WhiteNoise release available on PyPI to avoid resolver errors in hosted builders
+whitenoise==6.12.0

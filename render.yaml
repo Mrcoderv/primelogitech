@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: primelogitech-backend
+    env: docker
+    repo: https://github.com/pralhadgyawali/Primelogitech
+    branch: Rvbranch
+    dockerfilePath: backend/Dockerfile
+    plan: free
+
+static_sites:
+  - name: primelogitech-frontend
+    repo: https://github.com/pralhadgyawali/Primelogitech
+    branch: Rvbranch
+    buildCommand: cd frontend && npm ci && npm run build
+    publishPath: frontend/dist
+    plan: free

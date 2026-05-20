@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . ./
 
+# Run migrations during build
+RUN python manage.py migrate || true
+
 # Collect static files during build so WhiteNoise can serve them on Render.
 RUN python manage.py collectstatic --noinput || true
 

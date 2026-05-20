@@ -6,7 +6,6 @@
   "env": {
     "VITE_API_URL": "@vite_api_url"
   },
-  "envPrefix": "VITE_",
   "functions": {
     "api/**": {
       "memory": 1024,

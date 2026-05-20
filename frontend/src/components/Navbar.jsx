@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Menu, X, Hexagon } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
 
@@ -22,10 +22,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-2">
-            <Hexagon className="h-8 w-8 text-brand-blue" />
-            <span className="font-outfit font-bold text-xl tracking-tight text-white">
-              Prime Logic Tech
-            </span>
+            <img
+              src="/primelogilogo.jpeg"
+              alt="Prime Logic Tech"
+              className="h-12 w-12 rounded-full object-cover border-2 border-brand-blue/20 drop-shadow-[0_0_18px_rgba(56,189,248,0.15)]"
+            />
           </div>
 
           {/* Desktop Menu */}

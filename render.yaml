@@ -14,8 +14,6 @@ services:
       - key: PORT
         value: '8000'
     healthCheckPath: /api/
-    autoDeployOnPush: true
-    maxInstanceCount: 1
     preDeployCommand: |
       cd backend && \
       python manage.py migrate && \

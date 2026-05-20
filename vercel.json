@@ -3,9 +3,6 @@
   "outputDirectory": "frontend/dist",
   "framework": "vite",
   "regions": ["iad1"],
-  "env": {
-    "VITE_API_URL": "@vite_api_url"
-  },
   "functions": {
     "api/**": {
       "memory": 1024,

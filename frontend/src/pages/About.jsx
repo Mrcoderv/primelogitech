@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
 import TeamCard from '../components/TeamCard';
 import CTASection from '../components/CTASection';
-import { fetchTeam } from '../services/api';
 import { Target, Eye, Award, Users } from 'lucide-react';
+import { loadTeam } from '../services/api';
 
 export default function About() {
-  const [team, setTeam] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [team, setTeam] = React.useState([]);
 
-  useEffect(() => {
-    fetchTeam()
-      .then(data => setTeam(data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
+  React.useEffect(() => {
+    let active = true;
+
+    loadTeam().then((loadedTeam) => {
+      if (active) {
+        setTeam(loadedTeam);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const stats = [
@@ -23,14 +28,6 @@ export default function About() {
     { label: "Team Members", value: "45+" },
     { label: "Years Experience", value: "10+" }
   ];
-
-  if (loading) {
-    return (
-      <div className="w-full min-h-screen flex items-center justify-center">
-        <Loader2 className="h-12 w-12 text-brand-blue animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="w-full pt-24 lg:pt-32">
@@ -41,7 +38,7 @@ export default function About() {
           animate={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-6xl font-bold mb-6"
         >
-          About <span className="text-gradient">Prime Logic Tech</span>
+          About <span className="text-gradient">Prime Logitech</span>
         </motion.h1>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
@@ -76,7 +73,7 @@ export default function About() {
               viewport={{ once: true }}
               className="glass-panel p-8"
             >
-              <Eye className="h-10 w-10 text-brand-purple mb-6" />
+              <Eye className="h-10 w-10 text-brand-green mb-6" />
               <h2 className="text-2xl font-bold mb-4">Our Vision</h2>
               <p className="text-gray-400 leading-relaxed">
                 To be the global leader in digital transformation, setting new standards for software excellence and driving the future of enterprise technology.

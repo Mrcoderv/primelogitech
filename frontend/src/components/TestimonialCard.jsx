@@ -22,7 +22,7 @@ export default function TestimonialCard({ name, role, company, content, image, d
           {image ? (
             <img src={image} alt={name} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-brand-blue/20 to-brand-purple/20" />
+            <div className="w-full h-full bg-gradient-to-br from-brand-blue/20 to-brand-green/20" />
           )}
         </div>
         <div>

@@ -1,45 +1,77 @@
 from rest_framework import serializers
-from .models import Service, Project, Testimonial, Employee, Job, ContactSettings, ContactMessage
 
-
-class ServiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Service
-        fields = ['id', 'title', 'description', 'icon', 'order', 'created_at', 'updated_at']
+from .models import HomeContent, Project, TeamMember
 
 
 class ProjectSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    tech_stack = serializers.SerializerMethodField()
+
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'image_url', 'technologies', 'link', 'is_featured', 'order', 'created_at', 'updated_at']
+        fields = [
+            "id",
+            "title",
+            "category",
+            "description",
+            "image_url",
+            "link",
+            "tech_stack",
+            "is_pinned",
+            "created_at",
+        ]
+
+    def get_image_url(self, project):
+        request = self.context.get("request")
+        if not project.image:
+            return None
+
+        url = project.image.url
+        if request is None:
+            return url
+
+        return request.build_absolute_uri(url)
+
+    def get_tech_stack(self, project):
+        if not project.tech_stack:
+            return []
+
+        return [item.strip() for item in project.tech_stack.split(",") if item.strip()]
 
 
-class TestimonialSerializer(serializers.ModelSerializer):
+class HomeContentSerializer(serializers.ModelSerializer):
+    why_points = serializers.SerializerMethodField()
+
     class Meta:
-        model = Testimonial
-        fields = ['id', 'name', 'company', 'message', 'rating', 'image_url', 'order', 'created_at', 'updated_at']
+        model = HomeContent
+        fields = [
+            "why_title",
+            "why_description",
+            "why_points",
+            "why_panel_title",
+            "why_panel_description",
+            "client_success_title",
+            "client_success_description",
+        ]
+
+    def get_why_points(self, home_content):
+        return [item.strip() for item in home_content.why_points.splitlines() if item.strip()]
 
 
-class EmployeeSerializer(serializers.ModelSerializer):
+class TeamMemberSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
-        model = Employee
-        fields = ['id', 'name', 'role', 'bio', 'image_url', 'email', 'linkedin', 'twitter', 'order', 'created_at', 'updated_at']
+        model = TeamMember
+        fields = ["id", "name", "role", "bio", "image_url", "order"]
 
+    def get_image_url(self, member):
+        request = self.context.get("request")
+        if not member.image:
+            return None
 
-class JobSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Job
-        fields = ['id', 'title', 'description', 'location', 'job_type', 'salary_range', 'requirements', 'form_link', 'is_active', 'created_at', 'updated_at']
+        url = member.image.url
+        if request is None:
+            return url
 
-
-class ContactSettingsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContactSettings
-        fields = ['id', 'email', 'phone', 'location', 'updated_at']
-
-
-class ContactMessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ContactMessage
-        fields = ['id', 'name', 'email', 'subject', 'message', 'is_read', 'created_at']
-        read_only_fields = ['id', 'is_read', 'created_at']
+        return request.build_absolute_uri(url)

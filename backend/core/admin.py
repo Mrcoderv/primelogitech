@@ -1,186 +1,95 @@
+from django import forms
 from django.contrib import admin
-from django.utils.html import format_html
-from .models import ContactSettings, Service, Project, Job, Employee, Testimonial, ContactMessage
+
+from .models import HomeContent, Project, TeamMember
 
 
-admin.site.site_header = "Prime Logic Tech Administration"
-admin.site.site_title = "Prime Logic Tech Admin"
-admin.site.index_title = "Welcome to Prime Logic Tech Admin Panel"
-
-
-@admin.register(ContactSettings)
-class ContactSettingsAdmin(admin.ModelAdmin):
-    fields = ('email', 'phone', 'location')
-    readonly_fields = ('updated_at',)
-
-    def has_add_permission(self, request):
-        # Allow only one ContactSettings instance
-        return not ContactSettings.objects.exists()
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(Service)
-class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('title', 'icon', 'order', 'updated_at')
-    search_fields = ('title', 'description')
-    list_editable = ('order',)
-    ordering = ('order',)
-    fieldsets = (
-        ('Basic Information', {
-            'fields': ('title', 'description', 'icon', 'order')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
+class ProjectAdminForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = "__all__"
+        help_texts = {
+            "title": "The name shown on the website.",
+            "category": "Short label such as Web App, Mobile App, or Brand Identity.",
+            "description": "Write a short project summary for the portfolio cards.",
+            "image": "Upload a project screenshot or cover image.",
+            "link": "Optional live project or case-study URL.",
+            "tech_stack": "Enter technologies separated by commas, such as React, Django, PostgreSQL.",
+            "is_pinned": "Pinned projects appear in the featured-work slider on the homepage.",
+        }
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title', 'featured_badge', 'technologies', 'order', 'updated_at')
-    search_fields = ('title', 'description', 'technologies')
-    list_filter = ('is_featured', 'created_at')
-    list_editable = ('order',)
-    ordering = ('order',)
-    fieldsets = (
-        ('Project Information', {
-            'fields': ('title', 'description', 'image_url', 'technologies', 'link', 'order')
-        }),
-        ('Featured Work', {
-            'fields': ('is_featured',),
-            'description': '⭐ Check this box to feature this project in the "Featured Work" section'
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
-    
-    def featured_badge(self, obj):
-        if obj.is_featured:
-            return format_html('<span style="color: gold;">⭐ Featured</span>')
-        return format_html('<span style="color: gray;">○ Regular</span>')
-    featured_badge.short_description = 'Type'
+	form = ProjectAdminForm
+	list_display = ("title", "category", "is_pinned", "updated_at")
+	list_filter = ("is_pinned", "category", "created_at")
+	search_fields = ("title", "category", "description")
+	list_editable = ("is_pinned",)
+	readonly_fields = ("created_at", "updated_at")
+	fieldsets = (
+		("Project details", {
+			"fields": ("title", "category", "description", "link"),
+		}),
+		("Media and stack", {
+			"fields": ("image", "tech_stack"),
+		}),
+		("Homepage display", {
+			"fields": ("is_pinned",),
+		}),
+		("Audit fields", {
+			"fields": ("created_at", "updated_at"),
+		}),
+	)
+	search_fields = ("title", "category", "description")
 
 
-@admin.register(Job)
-class JobAdmin(admin.ModelAdmin):
-    list_display = ('title', 'location', 'job_type', 'status_badge', 'is_active', 'updated_at')
-    search_fields = ('title', 'description', 'location')
-    list_filter = ('job_type', 'is_active', 'created_at')
-    list_editable = ('is_active',)
-    ordering = ('-created_at',)
-    
-    fieldsets = (
-        ('Job Information', {
-            'fields': ('title', 'description', 'location', 'job_type', 'salary_range')
-        }),
-        ('Requirements & Application', {
-            'fields': ('requirements', 'form_link'),
-            'description': '📋 Add job requirements (one per line) and link to your application form (Google Form, TypeForm, or custom form URL)'
-        }),
-        ('Status', {
-            'fields': ('is_active',),
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
-    
-    def status_badge(self, obj):
-        if obj.is_active:
-            return format_html('<span style="color: green;">✓ Active</span>')
-        return format_html('<span style="color: red;">✗ Inactive</span>')
-    status_badge.short_description = 'Status'
+class HomeContentAdminForm(forms.ModelForm):
+	class Meta:
+		model = HomeContent
+		fields = "__all__"
+		widgets = {
+			"why_description": forms.Textarea(attrs={"rows": 3}),
+			"why_points": forms.Textarea(attrs={"rows": 5}),
+			"why_panel_description": forms.Textarea(attrs={"rows": 3}),
+			"client_success_description": forms.Textarea(attrs={"rows": 3}),
+		}
+		help_texts = {
+			"why_points": "Enter one benefit per line. These are the bullets shown in the 'Why partner with' section.",
+			"why_panel_description": "This text explains the creative panel on the right side.",
+			"client_success_description": "This controls the section intro shown above testimonials.",
+		}
 
 
-@admin.register(Employee)
-class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'role', 'email', 'order', 'updated_at')
-    search_fields = ('name', 'role', 'email', 'bio')
-    list_editable = ('order',)
-    ordering = ('order',)
-    fieldsets = (
-        ('Personal Information', {
-            'fields': ('name', 'role', 'bio', 'image_url', 'order')
-        }),
-        ('Contact & Social', {
-            'fields': ('email', 'linkedin', 'twitter'),
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
+@admin.register(HomeContent)
+class HomeContentAdmin(admin.ModelAdmin):
+	form = HomeContentAdminForm
+	list_display = ("why_title", "client_success_title")
+	fieldsets = (
+		("Why partner with", {
+			"fields": ("why_title", "why_description", "why_points"),
+		}),
+		("Right panel", {
+			"fields": ("why_panel_title", "why_panel_description"),
+		}),
+		("Client Success", {
+			"fields": ("client_success_title", "client_success_description"),
+		}),
+	)
 
 
-@admin.register(Testimonial)
-class TestimonialAdmin(admin.ModelAdmin):
-    list_display = ('name', 'company', 'rating_stars', 'rating', 'order', 'updated_at')
-    search_fields = ('name', 'company', 'message')
-    list_filter = ('rating', 'created_at')
-    list_editable = ('order', 'rating')
-    ordering = ('order',)
-    fieldsets = (
-        ('Testimonial Details', {
-            'fields': ('name', 'company', 'message', 'rating', 'image_url', 'order')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'updated_at')
-    
-    def rating_stars(self, obj):
-        stars = '⭐' * obj.rating
-        return format_html(f'{stars} ({obj.rating}/5)')
-    rating_stars.short_description = 'Rating'
-
-
-@admin.register(ContactMessage)
-class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'subject', 'read_status', 'is_read', 'created_at')
-    search_fields = ('name', 'email', 'subject', 'message')
-    list_filter = ('is_read', 'created_at')
-    list_editable = ('is_read',)
-    ordering = ('-created_at',)
-    date_hierarchy = 'created_at'
-    
-    fieldsets = (
-        ('Message Details', {
-            'fields': ('name', 'email', 'subject', 'message')
-        }),
-        ('Status', {
-            'fields': ('is_read',),
-        }),
-        ('Timestamps', {
-            'fields': ('created_at',),
-            'classes': ('collapse',)
-        }),
-    )
-    readonly_fields = ('created_at', 'name', 'email', 'subject', 'message')
-
-    def has_add_permission(self, request):
-        # Messages are only added via contact form
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        # Allow deletion only for admins
-        return request.user.is_staff
-    
-    def read_status(self, obj):
-        if obj.is_read:
-            return format_html('<span style="color: blue;">✓ Read</span>')
-        return format_html('<span style="color: orange;">⚠ Unread</span>')
-    read_status.short_description = 'Status'
-
-
+@admin.register(TeamMember)
+class TeamMemberAdmin(admin.ModelAdmin):
+	list_display = ("name", "role", "order", "is_active")
+	list_editable = ("order", "is_active")
+	list_filter = ("is_active", "role")
+	search_fields = ("name", "role", "bio")
+	ordering = ("order", "name")
+	fieldsets = (
+		("Profile", {
+			"fields": ("name", "role", "bio", "image"),
+		}),
+		("Display", {
+			"fields": ("order", "is_active"),
+		}),
+	)

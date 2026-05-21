@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageCircle, Briefcase, Code2, Camera, Mail, MapPin, Phone } from 'lucide-react';
-import { company } from '../config/company';
+import BrandLogo from './BrandLogo';
 
 
 export default function Footer() {
@@ -11,17 +11,20 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-6">
-              <img
-                src="/primelogilogo.jpeg"
-                alt="Prime Logic Tech"
-                className="h-12 w-12 rounded-full object-cover border-2 border-brand-blue/20"
-              />
-              <span className="text-lg font-bold">{company.name}</span>
+            <div className="flex items-center gap-3 mb-6">
+              <BrandLogo size="md" eager />
+              <div>
+                <div className="font-outfit font-bold text-xl tracking-tight text-white">
+                  Prime Logitech
+                </div>
+                <div className="text-sm text-brand-green/80">
+                  Design. Develop. Deliver.
+                </div>
+              </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Prime Logic Tech delivers innovative IT solutions designed to transform your business. 
-              We specialize in web development, mobile apps, and digital transformation for enterprises worldwide.
+              Empowering startups and enterprises with cutting-edge IT solutions. 
+              We build scalable, secure, and modern digital experiences.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-brand-blue transition-colors">
@@ -62,15 +65,15 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-gray-400">
                 <MapPin className="h-5 w-5 text-brand-blue shrink-0" />
-                <span>{company.contact.location}</span>
+                <span>Kathmandu, Nepal</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Phone className="h-5 w-5 text-brand-blue shrink-0" />
-                <span>{company.contact.phone}</span>
+                <span>+1 (555) 123-4567</span>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Mail className="h-5 w-5 text-brand-blue shrink-0" />
-                <span>{company.contact.email}</span>
+                <span>hello@primelogitech.com</span>
               </li>
             </ul>
           </div>
@@ -98,7 +101,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
-          <p>&copy; {company.copyrightYear} {company.name}. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Prime Logitech. All rights reserved.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-gray-300">Privacy Policy</a>
             <a href="#" className="hover:text-gray-300">Terms of Service</a>

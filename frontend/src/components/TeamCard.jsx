@@ -13,7 +13,7 @@ export default function TeamCard({ name, role, bio, image, delay = 0 }) {
     >
       <div className="relative w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-brand-blue transition-colors">
         {image ? (
-          <img src={image} alt={name} className="w-full h-full object-cover" />
+          <img src={image} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-gray-600">
             Image

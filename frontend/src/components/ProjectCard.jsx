@@ -11,7 +11,7 @@ export default function ProjectCard({ title, category, description, image, techS
       transition={{ duration: 0.5, delay }}
       className="glass-panel group overflow-hidden flex flex-col h-full"
     >
-      <div className="relative h-64 overflow-hidden">
+      <div className="relative h-52 sm:h-56 md:h-64 overflow-hidden">
         {isPinned ? (
           <div className="absolute left-4 top-4 z-10 rounded-full bg-brand-blue text-black px-3 py-1 text-xs font-semibold uppercase tracking-widest">
             Pinned
@@ -48,9 +48,9 @@ export default function ProjectCard({ title, category, description, image, techS
         </div>
       </div>
       
-      <div className="p-6 flex flex-col flex-grow">
+      <div className="p-4 sm:p-6 flex flex-col flex-grow">
         <div className="text-brand-blue text-sm font-medium mb-2">{category}</div>
-        <h3 className="text-xl font-bold mb-3 text-white">{title}</h3>
+        <h3 className="text-lg sm:text-xl font-bold mb-3 text-white">{title}</h3>
         <p className="text-gray-400 text-sm mb-6 flex-grow">{description}</p>
         
         <div className="flex flex-wrap gap-2 mt-auto">

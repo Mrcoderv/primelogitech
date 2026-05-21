@@ -9,11 +9,11 @@ export default function TestimonialCard({ name, role, company, content, image, d
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="glass-panel p-8 relative group"
+      className="glass-panel p-6 sm:p-8 relative group"
     >
-      <Quote className="absolute top-6 right-8 h-12 w-12 text-white/5 group-hover:text-brand-blue/10 transition-colors" />
+      <Quote className="absolute top-4 right-4 sm:top-6 sm:right-8 h-10 w-10 sm:h-12 sm:w-12 text-white/5 group-hover:text-brand-blue/10 transition-colors" />
       
-      <p className="text-gray-300 mb-8 relative z-10 leading-relaxed">
+      <p className="text-gray-300 mb-6 sm:mb-8 relative z-10 leading-relaxed text-sm sm:text-base">
         "{content}"
       </p>
       

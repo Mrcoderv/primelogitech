@@ -20,15 +20,15 @@ export default function Navbar() {
   return (
     <nav className="fixed w-full z-50 glass-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-3">
             <BrandLogo size="sm" eager />
-            <div className="leading-tight">
-              <div className="font-outfit font-bold text-xl tracking-tight text-white">
+            <div className="leading-tight max-w-[10rem] sm:max-w-none">
+              <div className="font-outfit font-bold text-lg sm:text-xl tracking-tight text-white">
                 Prime Logitech
               </div>
-              <div className="text-[10px] uppercase tracking-[0.35em] text-brand-green/80">
+              <div className="hidden sm:block text-[10px] uppercase tracking-[0.35em] text-brand-green/80">
                 Design. Develop. Deliver.
               </div>
             </div>
@@ -78,7 +78,8 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden glass-nav border-t border-white/5"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <div className="mx-auto max-w-7xl px-4 pb-4 pt-2 sm:px-6 lg:px-8">
+              <div className="rounded-2xl border border-white/10 bg-[#050505]/95 p-2 space-y-1 shadow-xl">
               {navLinks.map((link) => (
                 <NavLink
                   key={link.name}
@@ -86,7 +87,7 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      "block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200",
+                      "block px-3 py-3 rounded-xl text-base font-medium transition-colors duration-200",
                       isActive
                         ? "text-brand-blue bg-white/5"
                         : "text-gray-300 hover:text-white hover:bg-white/5"
@@ -96,6 +97,7 @@ export default function Navbar() {
                   {link.name}
                 </NavLink>
               ))}
+              </div>
             </div>
           </motion.div>
         )}

@@ -9,9 +9,9 @@ export default function TeamCard({ name, role, bio, image, delay = 0 }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="glass-panel p-6 text-center group"
+      className="glass-panel p-5 sm:p-6 text-center group"
     >
-      <div className="relative w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-brand-blue transition-colors">
+      <div className="relative w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-5 sm:mb-6 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-brand-blue transition-colors">
         {image ? (
           <img src={image} alt={name} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         ) : (
@@ -21,7 +21,7 @@ export default function TeamCard({ name, role, bio, image, delay = 0 }) {
         )}
       </div>
       
-      <h3 className="text-lg font-bold text-white mb-1">{name}</h3>
+      <h3 className="text-base sm:text-lg font-bold text-white mb-1">{name}</h3>
       <p className="text-brand-blue text-sm mb-4">{role}</p>
       <p className="text-gray-400 text-sm mb-6 line-clamp-3">{bio}</p>
       

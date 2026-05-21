@@ -52,12 +52,12 @@ export default function Contact() {
   };
 
   return (
-    <div className="w-full pt-24 lg:pt-32 pb-20">
-      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center mb-16">
+    <div className="w-full pt-20 sm:pt-24 lg:pt-32 pb-16 sm:pb-20">
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center mb-12 sm:mb-16">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-6xl font-bold mb-6"
+          className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6"
         >
           Get in <span className="text-gradient">Touch</span>
         </motion.h1>
@@ -65,25 +65,25 @@ export default function Contact() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-lg text-gray-400 max-w-2xl mx-auto"
+          className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto px-2 sm:px-0"
         >
           Ready to start your next big project? Contact us today to discuss how we can help your business grow.
         </motion.p>
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12">
           {/* Contact Info */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="space-y-8"
+            className="space-y-6 sm:space-y-8"
           >
-            <div className="glass-panel p-8">
-              <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
+            <div className="glass-panel p-6 sm:p-8">
+              <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-6">Contact Information</h3>
+              <div className="space-y-5 sm:space-y-6">
+                <div className="flex items-start gap-3 sm:gap-4">
                   <div className="p-3 bg-white/5 rounded-lg text-brand-blue">
                     <MapPin className="h-6 w-6" />
                   </div>
@@ -92,7 +92,7 @@ export default function Contact() {
                     <p className="text-gray-400">Kathmandu, Nepal</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3 sm:gap-4">
                   <div className="p-3 bg-white/5 rounded-lg text-brand-blue">
                     <Phone className="h-6 w-6" />
                   </div>
@@ -101,7 +101,7 @@ export default function Contact() {
                     <p className="text-gray-400">+1 (555) 123-4567</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3 sm:gap-4">
                   <div className="p-3 bg-white/5 rounded-lg text-brand-blue">
                     <Mail className="h-6 w-6" />
                   </div>
@@ -113,7 +113,7 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="glass-panel p-2 h-64 relative overflow-hidden group">
+            <div className="glass-panel p-2 h-56 sm:h-64 relative overflow-hidden group">
               {/* Map Placeholder */}
               <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
                 <div className="text-center">
@@ -129,17 +129,17 @@ export default function Contact() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-panel p-8"
+            className="glass-panel p-6 sm:p-8"
           >
-            <h3 className="text-2xl font-bold mb-6">Send us a Message</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mb-5 sm:mb-6">Send us a Message</h3>
             {success ? (
-              <div className="h-full flex flex-col items-center justify-center py-12 text-center">
+              <div className="h-full flex flex-col items-center justify-center py-10 sm:py-12 text-center">
                 <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
-                <h4 className="text-xl font-bold text-white mb-2">Message Sent Successfully!</h4>
-                <p className="text-gray-400">We will get back to you as soon as possible.</p>
+                <h4 className="text-lg sm:text-xl font-bold text-white mb-2">Message Sent Successfully!</h4>
+                <p className="text-gray-400 text-sm sm:text-base">We will get back to you as soon as possible.</p>
               </div>
             ) : (
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit}>
                 <div className="space-y-2">
                   <label htmlFor="name" className="text-sm font-medium text-gray-300">Full Name</label>
                   <input 

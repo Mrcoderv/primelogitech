@@ -8,7 +8,7 @@ export default function ServiceCard({ title, description, icon: Icon, delay = 0 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="glass-panel p-8 group hover:border-brand-blue/50 transition-colors duration-300 relative overflow-hidden"
+      className="glass-panel p-6 sm:p-8 group hover:border-brand-blue/50 transition-colors duration-300 relative overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/10 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
       
@@ -16,8 +16,8 @@ export default function ServiceCard({ title, description, icon: Icon, delay = 0 
         <Icon className="h-7 w-7 text-brand-blue" />
       </div>
       
-      <h3 className="text-xl font-semibold mb-4 text-white">{title}</h3>
-      <p className="text-gray-400 text-sm leading-relaxed">
+      <h3 className="text-lg sm:text-xl font-semibold mb-4 text-white">{title}</h3>
+      <p className="text-sm text-gray-400 leading-relaxed">
         {description}
       </p>
     </motion.div>

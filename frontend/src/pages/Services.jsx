@@ -26,12 +26,12 @@ export default function Services() {
   }
 
   return (
-    <div className="w-full pt-24 lg:pt-32">
-      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center mb-20">
+    <div className="w-full pt-20 sm:pt-24 lg:pt-32">
+      <section className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center mb-12 sm:mb-16 lg:mb-20">
         <motion.h1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl md:text-6xl font-bold mb-6"
+          className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6"
         >
           Our <span className="text-gradient">Services</span>
         </motion.h1>
@@ -39,15 +39,15 @@ export default function Services() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-lg text-gray-400 max-w-2xl mx-auto"
+          className="text-base sm:text-lg text-gray-400 max-w-2xl mx-auto px-2 sm:px-0"
         >
           End-to-end IT services designed to accelerate your digital journey and deliver scalable solutions.
         </motion.p>
       </section>
 
-      <section className="py-12 mb-20">
+      <section className="py-10 sm:py-12 mb-16 sm:mb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {services.map((service, index) => {
               const IconComponent = Icons[service.icon] || Icons.Code;
               return (

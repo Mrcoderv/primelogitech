@@ -82,8 +82,6 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="relative inline-flex items-center justify-center mb-6 sm:mb-8"
             >
-              <div className="absolute inset-0 -z-10 rounded-full bg-brand-blue/20 blur-3xl" />
-              <div className="absolute inset-5 -z-10 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-xl" />
               <BrandLogo size="xxl" eager className="h-44 w-44 sm:h-52 sm:w-52 md:h-60 md:w-60 drop-shadow-[0_0_32px_rgba(18,146,255,0.45)]" />
             </motion.div>
 

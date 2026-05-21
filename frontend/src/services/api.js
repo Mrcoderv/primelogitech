@@ -1,7 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const fallbackHomeContent = {
-  whyTitle: 'Why partner with Prime Logitech?',
+  whyTitle: 'Why partner with Prime Logic Tech?',
   whyDescription:
     "We don't just write code; we build strategic digital assets. Our approach combines technical excellence with business acumen to deliver measurable results.",
   whyPoints: [
@@ -15,7 +15,7 @@ const fallbackHomeContent = {
     'The right side is a living visual panel that can be customized from the admin area. It is meant to reinforce the brand rather than display loading content.',
   clientSuccessTitle: 'Client Success',
   clientSuccessDescription:
-    "Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech.",
+    "Don't just take our word for it. Hear what our partners have to say about working with Prime Logic Tech.",
 };
 
 const fallbackServices = [
@@ -85,7 +85,7 @@ const fallbackTeam = [
   {
     name: 'Prasiddha Gyawali',
     role: 'CEO & Founder',
-    bio: 'Visionary leader driving the strategic direction of Prime Logitech to deliver exceptional digital experiences.',
+    bio: 'Visionary leader driving the strategic direction of Prime Logic Tech to deliver exceptional digital experiences.',
     image: null,
     order: 0,
   },

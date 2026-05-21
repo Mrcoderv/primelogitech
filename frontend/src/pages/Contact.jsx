@@ -107,7 +107,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="text-white font-medium mb-1">Email Address</h4>
-                    <p className="text-gray-400">hello@primelogitech.com</p>
+                    <p className="text-gray-400">hello@primelogictech.com</p>
                   </div>
                 </div>
               </div>

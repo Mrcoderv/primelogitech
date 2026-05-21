@@ -20,7 +20,7 @@ class Project(models.Model):
 
 
 class HomeContent(models.Model):
-	why_title = models.CharField(max_length=200, default="Why partner with Prime Logitech?")
+	why_title = models.CharField(max_length=200, default="Why partner with Prime Logic Tech?")
 	why_description = models.TextField(
 		default="We don't just write code; we build strategic digital assets. Our approach combines technical excellence with business acumen to deliver measurable results."
 	)
@@ -38,7 +38,7 @@ class HomeContent(models.Model):
 	)
 	client_success_title = models.CharField(max_length=200, default="Client Success")
 	client_success_description = models.TextField(
-		default="Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech."
+		default="Don't just take our word for it. Hear what our partners have to say about working with Prime Logic Tech."
 	)
 
 	def __str__(self):

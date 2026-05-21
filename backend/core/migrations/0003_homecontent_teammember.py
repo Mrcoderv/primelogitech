@@ -12,13 +12,13 @@ class Migration(migrations.Migration):
 			name="HomeContent",
 			fields=[
 				("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-				("why_title", models.CharField(default="Why partner with Prime Logitech?", max_length=200)),
+				("why_title", models.CharField(default="Why partner with Prime Logic Tech?", max_length=200)),
 				("why_description", models.TextField(default="We don't just write code; we build strategic digital assets. Our approach combines technical excellence with business acumen to deliver measurable results.")),
 				("why_points", models.TextField(default="Agile development methodology for rapid delivery\nEnterprise-grade security and scalability\nAward-winning UI/UX design team\n24/7 dedicated support and maintenance")),
 				("why_panel_title", models.CharField(default="Creative delivery, engineered to scale", max_length=200)),
 				("why_panel_description", models.TextField(default="The right side is a living visual panel that can be customized from the admin area. It is meant to reinforce the brand rather than display loading content.")),
 				("client_success_title", models.CharField(default="Client Success", max_length=200)),
-				("client_success_description", models.TextField(default="Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech.")),
+				("client_success_description", models.TextField(default="Don't just take our word for it. Hear what our partners have to say about working with Prime Logic Tech.")),
 			],
 		),
 		migrations.CreateModel(

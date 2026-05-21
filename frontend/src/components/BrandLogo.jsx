@@ -12,7 +12,7 @@ export default function BrandLogo({ size = 'md', className = '', eager = false }
 	return (
 		<img
 			src="/primelogitechbg.png"
-			alt="Prime Logitech logo"
+			alt="Prime Logic Tech logo"
 			className={`${sizeClasses[size] || sizeClasses.md} object-contain shrink-0 ${className}`.trim()}
 			loading={eager ? 'eager' : 'lazy'}
 			decoding="async"

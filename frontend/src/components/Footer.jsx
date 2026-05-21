@@ -15,7 +15,7 @@ export default function Footer() {
               <BrandLogo size="md" eager />
               <div>
                 <div className="font-outfit font-bold text-xl tracking-tight text-white">
-                  Prime Logitech
+                  Prime Logic Tech
                 </div>
                 <div className="text-sm text-brand-green/80">
                   Design. Develop. Deliver.
@@ -101,7 +101,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 text-center md:text-left">
-          <p>&copy; {new Date().getFullYear()} Prime Logitech. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Prime Logic Tech. All rights reserved.</p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-gray-300">Privacy Policy</a>
             <a href="#" className="hover:text-gray-300">Terms of Service</a>

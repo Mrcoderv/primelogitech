@@ -21,7 +21,7 @@ export default function CTASection() {
             Ready to <span className="text-gradient">Transform</span> Your Business?
           </h2>
           <p className="text-gray-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 px-2 sm:px-0">
-            Join innovative startups and enterprises who trust Prime Logitech to build scalable, secure, and modern digital solutions.
+            Join innovative startups and enterprises who trust Prime Logic Tech to build scalable, secure, and modern digital solutions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 

@@ -26,7 +26,7 @@ export default function Navbar() {
             <BrandLogo size="sm" eager />
             <div className="leading-tight max-w-[10rem] sm:max-w-none">
               <div className="font-outfit font-bold text-lg sm:text-xl tracking-tight text-white">
-                Prime Logitech
+                Prime Logic Tech
               </div>
               <div className="hidden sm:block text-[10px] uppercase tracking-[0.35em] text-brand-green/80">
                 Design. Develop. Deliver.

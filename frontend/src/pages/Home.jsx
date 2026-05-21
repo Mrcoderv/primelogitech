@@ -104,7 +104,7 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-blue opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-blue"></span>
               </span>
-              Prime Logitech is now live
+              Prime Logic Tech is now live
             </motion.div>
 
             <motion.h1
@@ -188,7 +188,7 @@ export default function Home() {
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">
                 {homeContent?.whyTitle || (
                   <>
-                    Why partner with <br /> <span className="text-gradient">Prime Logitech?</span>
+                    Why partner with <br /> <span className="text-gradient">Prime Logic Tech?</span>
                   </>
                 )}
               </h2>
@@ -313,7 +313,7 @@ export default function Home() {
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6">{homeContent?.clientSuccessTitle || 'Client Success'}</h2>
             <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto px-2 sm:px-0">
-              {homeContent?.clientSuccessDescription || "Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech."}
+              {homeContent?.clientSuccessDescription || "Don't just take our word for it. Hear what our partners have to say about working with Prime Logic Tech."}
             </p>
           </div>
 

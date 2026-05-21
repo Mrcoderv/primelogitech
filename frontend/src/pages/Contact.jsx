@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2 } from 'lucide-react';
-import { company } from '../config/company';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -26,25 +25,27 @@ export default function Contact() {
       payload.append('email', formData.email);
       payload.append('subject', formData.subject);
       payload.append('message', formData.message);
-      payload.append('access_key', '1c853ee9-9a79-41a4-a1d8-33519810bf98');
 
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const res = await fetch('https://formspree.io/f/xjgzbpyg', {
         method: 'POST',
-        body: payload
+        body: payload,
+        headers: {
+          'Accept': 'application/json'
+        }
       });
-
-      const data = await res.json();
 
       if (res.ok) {
         setSuccess(true);
         setFormData({ name: '', email: '', subject: '', message: '' });
         setTimeout(() => setSuccess(false), 5000);
       } else {
-        alert('Error: ' + (data.message || 'Failed to send message. Please try again.'));
+        const err = await res.json().catch(() => ({}));
+        console.error('Formspree error', err);
+        alert('Failed to send message. Please try again.');
       }
     } catch (err) {
       console.error(err);
-      alert('Something went wrong. Please try again.');
+      alert('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -88,7 +89,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="text-white font-medium mb-1">Our Location</h4>
-                    <p className="text-gray-400">{company.contact.location}</p>
+                    <p className="text-gray-400">Kathmandu, Nepal</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -97,7 +98,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="text-white font-medium mb-1">Phone Number</h4>
-                    <p className="text-gray-400">{company.contact.phone}</p>
+                    <p className="text-gray-400">+1 (555) 123-4567</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -106,7 +107,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h4 className="text-white font-medium mb-1">Email Address</h4>
-                    <p className="text-gray-400">{company.contact.email}</p>
+                    <p className="text-gray-400">hello@primelogitech.com</p>
                   </div>
                 </div>
               </div>

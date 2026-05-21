@@ -18,6 +18,39 @@ const fallbackHomeContent = {
     "Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech.",
 };
 
+const fallbackServices = [
+  {
+    title: 'Web Development',
+    description: 'Custom, responsive, and high-performance websites built with modern frameworks like React and Next.js.',
+    icon: 'Code',
+  },
+  {
+    title: 'Mobile App Development',
+    description: 'Native and cross-platform mobile applications for iOS and Android using React Native and Flutter.',
+    icon: 'Smartphone',
+  },
+  {
+    title: 'UI/UX Design',
+    description: 'User-centric design solutions that enhance engagement and deliver intuitive digital experiences.',
+    icon: 'PenTool',
+  },
+  {
+    title: 'SEO Optimization',
+    description: 'Data-driven SEO strategies to improve your search rankings and drive organic traffic.',
+    icon: 'Search',
+  },
+  {
+    title: 'Cloud Solutions',
+    description: 'Scalable cloud infrastructure setup, migration, and management on AWS, Azure, or GCP.',
+    icon: 'Cloud',
+  },
+  {
+    title: 'AI Automation',
+    description: 'Intelligent automation and AI integrations to streamline operations and boost productivity.',
+    icon: 'BrainCircuit',
+  },
+];
+
 const fallbackProjects = [
   {
     title: 'FinTech Dashboard',
@@ -86,6 +119,8 @@ const fallbackTeam = [
   },
 ];
 
+const fallbackJobs = [];
+
 function normalizeProject(project) {
   return {
     title: project.title,
@@ -126,6 +161,15 @@ export async function loadProjects() {
   }
 }
 
+export async function fetchServices() {
+  try {
+    const data = await fetchJson('/api/services/');
+    return Array.isArray(data) ? data : fallbackServices;
+  } catch (error) {
+    return fallbackServices;
+  }
+}
+
 export async function loadHomeContent() {
   try {
     const data = await fetchJson('/api/home-content/');
@@ -157,5 +201,14 @@ export async function loadTeam() {
       : fallbackTeam;
   } catch (error) {
     return fallbackTeam;
+  }
+}
+
+export async function fetchJobs() {
+  try {
+    const data = await fetchJson('/api/jobs/');
+    return Array.isArray(data) ? data : fallbackJobs;
+  } catch (error) {
+    return fallbackJobs;
   }
 }

@@ -60,7 +60,7 @@ TESTIMONIALS = [
         "name": "Sarah Jenkins",
         "role": "CEO",
         "company": "TechNova",
-        "content": "Prime Logic Tech transformed our legacy systems into a modern, lightning-fast platform. Their attention to detail and technical expertise is unmatched.",
+        "content": "Prime Logitech transformed our legacy systems into a modern, lightning-fast platform. Their attention to detail and technical expertise is unmatched.",
         "image": None,
     },
     {
@@ -83,7 +83,7 @@ TEAM = [
     {
         "name": "Prasiddha Gyawali",
         "role": "CEO & Founder",
-        "bio": "Visionary leader driving the strategic direction of Prime Logic Tech to deliver exceptional digital experiences.",
+        "bio": "Visionary leader driving the strategic direction of Prime Logitech to deliver exceptional digital experiences.",
         "image": "https://ui-avatars.com/api/?name=Prasiddha+Gyawali&background=111827&color=fff",
     },
     {

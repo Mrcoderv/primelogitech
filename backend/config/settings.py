@@ -16,6 +16,11 @@ if ',' in ALLOWED_HOSTS_ENV:
 else:
     ALLOWED_HOSTS = [ALLOWED_HOSTS_ENV]
 
+# Render runs behind an internal proxy that forwards the original Host
+# header via X-Forwarded-Host.  Without this setting Django's
+# ALLOWED_HOSTS validation rejects legitimate requests.
+USE_X_FORWARDED_HOST = True
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

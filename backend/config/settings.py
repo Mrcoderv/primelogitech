@@ -16,10 +16,9 @@ if ',' in ALLOWED_HOSTS_ENV:
 else:
     ALLOWED_HOSTS = [ALLOWED_HOSTS_ENV]
 
-# Render runs behind an internal proxy that forwards the original Host
-# header via X-Forwarded-Host.  Without this setting Django's
-# ALLOWED_HOSTS validation rejects legitimate requests.
-USE_X_FORWARDED_HOST = True
+# NOTE: HealthCheckMiddleware (first in MIDDLEWARE) rewrites the Host
+# header to RENDER_EXTERNAL_HOSTNAME for all requests coming through
+# Render's proxy, so we do NOT need USE_X_FORWARDED_HOST here.
 
 INSTALLED_APPS = [
     'django.contrib.admin',

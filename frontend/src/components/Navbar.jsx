@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,16 +22,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-3">
+          <div className="flex-shrink-0">
             <BrandLogo size="sm" eager />
-            <div className="leading-tight">
-              <div className="font-outfit font-bold text-xl tracking-tight text-white">
-                Prime Logitech
-              </div>
-              <div className="text-[10px] uppercase tracking-[0.35em] text-brand-green/80">
-                Design. Develop. Deliver.
-              </div>
-            </div>
           </div>
 
           {/* Desktop Menu */}

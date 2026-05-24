@@ -99,7 +99,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ── CORS ─────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS_ENV = os.environ.get(
     'CORS_ALLOWED_ORIGINS',
-    'https://primelogitech.vercel.app,http://localhost:5173,http://localhost:3000'
+    'https://primelogictech.vercel.app,https://primelogitech.vercel.app,http://localhost:5173,http://localhost:3000'
 )
 if ',' in CORS_ALLOWED_ORIGINS_ENV:
     CORS_ALLOWED_ORIGINS = [

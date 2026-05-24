@@ -28,7 +28,7 @@ services:
 
       # ── CORS (allow frontend on Vercel) ──────────
       - key: CORS_ALLOWED_ORIGINS
-        value: 'https://primelogitech.vercel.app,http://localhost:5173,http://localhost:3000'
+        value: 'https://primelogictech.vercel.app,https://primelogitech.vercel.app,http://localhost:5173,http://localhost:3000'
 
       # ── PostgreSQL (auto-provisioned by Render) ──
       - key: DATABASE_URL

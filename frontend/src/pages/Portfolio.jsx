@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ProjectCard from '../components/ProjectCard';
 import CTASection from '../components/CTASection';
-import { loadProjects } from '../services/api';
+import { fetchProjects } from '../services/api';
 
 export default function Portfolio() {
   const [projects, setProjects] = useState([]);
@@ -10,7 +10,7 @@ export default function Portfolio() {
   useEffect(() => {
     let active = true;
 
-    loadProjects().then((loadedProjects) => {
+    fetchProjects().then((loadedProjects) => {
       if (active) {
         setProjects(loadedProjects);
       }
@@ -47,7 +47,7 @@ export default function Portfolio() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {projects.map((project, index) => (
                 <ProjectCard 
-                  key={project.title}
+                  key={project.id || project.title}
                   {...project}
                   delay={index * 0.1}
                 />

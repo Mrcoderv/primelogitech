@@ -1,17 +1,17 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import TeamCard from '../components/TeamCard';
 import CTASection from '../components/CTASection';
-import { Target, Eye, Award, Users } from 'lucide-react';
-import { loadTeam } from '../services/api';
+import { Target, Eye } from 'lucide-react';
+import { fetchTeam } from '../services/api';
 
 export default function About() {
-  const [team, setTeam] = React.useState([]);
+  const [team, setTeam] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let active = true;
 
-    loadTeam().then((loadedTeam) => {
+    fetchTeam().then((loadedTeam) => {
       if (active) {
         setTeam(loadedTeam);
       }
@@ -115,9 +115,9 @@ export default function About() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map((member, index) => (
+            {team.filter(m => m.is_active !== false).map((member, index) => (
               <TeamCard 
-                key={member.name}
+                key={member.id || member.name}
                 {...member}
                 delay={index * 0.1}
               />

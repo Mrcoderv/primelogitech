@@ -1,8 +1,10 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Quote } from 'lucide-react';
 
-export default function TestimonialCard({ name, role, company, content, image, delay = 0 }) {
+export default function TestimonialCard({ name, role, company, content, quote, image, avatar_url, delay = 0 }) {
+  const displayContent = content || quote;
+  const displayImage = image || avatar_url;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -14,20 +16,20 @@ export default function TestimonialCard({ name, role, company, content, image, d
       <Quote className="absolute top-6 right-8 h-12 w-12 text-white/5 group-hover:text-brand-blue/10 transition-colors" />
       
       <p className="text-gray-300 mb-8 relative z-10 leading-relaxed">
-        "{content}"
+        "{displayContent}"
       </p>
       
       <div className="flex items-center gap-4">
         <div className="h-12 w-12 rounded-full overflow-hidden bg-white/10">
-          {image ? (
-            <img src={image} alt={name} className="w-full h-full object-cover" />
+          {displayImage ? (
+            <img src={displayImage} alt={name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-brand-blue/20 to-brand-green/20" />
           )}
         </div>
         <div>
           <h4 className="text-white font-semibold">{name}</h4>
-          <p className="text-sm text-gray-400">{role}, {company}</p>
+          <p className="text-sm text-gray-400">{role}{company ? `, ${company}` : ''}</p>
         </div>
       </div>
     </motion.div>

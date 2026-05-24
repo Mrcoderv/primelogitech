@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 
 export default function ServiceCard({ title, description, icon: Icon, delay = 0 }) {

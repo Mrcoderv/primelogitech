@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -7,35 +7,32 @@ import ProjectCard from '../components/ProjectCard';
 import TestimonialCard from '../components/TestimonialCard';
 import CTASection from '../components/CTASection';
 import BrandLogo from '../components/BrandLogo';
-import { services, testimonials } from '../data/mock';
-import { loadHomeContent, loadProjects } from '../services/api';
+import { fetchSiteContent, fetchProjects, fetchServices, fetchTestimonials } from '../services/api';
 
 export default function Home() {
   const [projects, setProjects] = useState([]);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
-  const [homeContent, setHomeContent] = useState(null);
+  const [siteContent, setSiteContent] = useState(null);
+  const [services, setServices] = useState([]);
+  const [testimonials, setTestimonials] = useState([]);
 
   useEffect(() => {
     let active = true;
 
-    loadProjects().then((loadedProjects) => {
-      if (active) {
-        setProjects(loadedProjects);
-      }
+    fetchProjects().then((data) => {
+      if (active) setProjects(data);
     });
 
-    return () => {
-      active = false;
-    };
-  }, []);
+    fetchSiteContent().then((data) => {
+      if (active) setSiteContent(data);
+    });
 
-  useEffect(() => {
-    let active = true;
+    fetchServices().then((data) => {
+      if (active) setServices(data);
+    });
 
-    loadHomeContent().then((content) => {
-      if (active) {
-        setHomeContent(content);
-      }
+    fetchTestimonials().then((data) => {
+      if (active) setTestimonials(data);
     });
 
     return () => {
@@ -44,18 +41,26 @@ export default function Home() {
   }, []);
 
   const featuredProjects = useMemo(() => {
-    const pinnedProjects = projects.filter((project) => project.isPinned);
+    const pinnedProjects = projects.filter((project) => project.pinned);
     return pinnedProjects.length > 0 ? pinnedProjects : projects.slice(0, 3);
   }, [projects]);
 
-  const whyPoints = homeContent?.whyPoints?.length
-    ? homeContent.whyPoints
+  const whyChecklist = siteContent?.why_checklist?.length
+    ? siteContent.why_checklist
     : [
         'Agile development methodology for rapid delivery',
         'Enterprise-grade security and scalability',
         'Award-winning UI/UX design team',
         '24/7 dedicated support and maintenance',
       ];
+
+  const stats = siteContent?.stats?.length
+    ? siteContent.stats
+    : null;
+
+  const trustedByLogos = siteContent?.trusted_by_logos?.length
+    ? siteContent.trusted_by_logos
+    : [];
 
   useEffect(() => {
     if (featuredProjects.length <= 1) {
@@ -68,12 +73,6 @@ export default function Home() {
 
     return () => window.clearInterval(interval);
   }, [featuredProjects.length]);
-
-  useEffect(() => {
-    if (activeProjectIndex >= featuredProjects.length) {
-      setActiveProjectIndex(0);
-    }
-  }, [activeProjectIndex, featuredProjects.length]);
 
   return (
     <div className="w-full">
@@ -101,7 +100,7 @@ export default function Home() {
               transition={{ duration: 0.45, delay: 0.05 }}
               className="mb-8 text-sm sm:text-base uppercase tracking-[0.45em] text-brand-green/80"
             >
-              Design. Develop. Deliver.
+              {siteContent?.hero_subtitle || 'Design. Develop. Deliver.'}
             </motion.div>
 
             <motion.div
@@ -114,7 +113,7 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-blue opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-blue"></span>
               </span>
-              Prime Logitech is now live
+              {siteContent?.hero_badge || 'Prime Logitech is now live'}
             </motion.div>
             
             <motion.h1 
@@ -123,7 +122,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-5xl md:text-7xl font-bold mb-8 leading-tight tracking-tight"
             >
-              Building the <span className="text-gradient">Digital Future</span> for Modern Enterprises
+              {siteContent?.hero_title || <>Building the <span className="text-gradient">Digital Future</span> for Modern Enterprises</>}
             </motion.h1>
             
             <motion.p 
@@ -132,7 +131,7 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto"
             >
-              We craft high-performance web applications, scalable mobile solutions, and enterprise software that drives growth and innovation.
+              {siteContent?.hero_description || "We craft high-performance web applications, scalable mobile solutions, and enterprise software that drives growth and innovation."}
             </motion.p>
             
             <motion.div 
@@ -142,10 +141,10 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link 
-                to="/contact" 
+                to={siteContent?.hero_cta_link || "/contact"} 
                 className="bg-white text-black px-8 py-4 rounded-xl font-medium hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2 group"
               >
-                Start a Project
+                {siteContent?.hero_cta_text || "Start a Project"}
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link 
@@ -159,19 +158,54 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trusted Companies */}
+      {/* Stats Section */}
+      {stats && (
+        <section className="py-16 border-y border-white/5 bg-white/[0.02]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  className="text-center"
+                >
+                  <div className="text-4xl md:text-5xl font-bold text-gradient mb-2">{stat.value}</div>
+                  <div className="text-sm text-gray-400 uppercase tracking-wider">{stat.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Trusted By */}
       <section className="py-10 border-y border-white/5 bg-white/[0.02]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-gray-500 mb-8 font-medium tracking-widest uppercase">
-            Trusted by innovative companies
+            {siteContent?.trusted_by_title || 'Trusted by innovative companies'}
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-            {/* Placeholder for logos */}
-            <div className="text-xl font-bold font-outfit">ACME Corp</div>
-            <div className="text-xl font-bold font-outfit">GlobalTech</div>
-            <div className="text-xl font-bold font-outfit">Nexus</div>
-            <div className="text-xl font-bold font-outfit">Stellar</div>
-            <div className="text-xl font-bold font-outfit">Quantum</div>
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-50 hover:grayscale-0 transition-all duration-500">
+            {trustedByLogos.length > 0 ? (
+              trustedByLogos.map((logoUrl, index) => (
+                <img
+                  key={index}
+                  src={logoUrl}
+                  alt={`Trusted company ${index + 1}`}
+                  className="h-10 object-contain filter grayscale hover:grayscale-0 transition-all duration-300"
+                />
+              ))
+            ) : (
+              <>
+                <div className="text-xl font-bold font-outfit text-gray-500">ACME Corp</div>
+                <div className="text-xl font-bold font-outfit text-gray-500">GlobalTech</div>
+                <div className="text-xl font-bold font-outfit text-gray-500">Nexus</div>
+                <div className="text-xl font-bold font-outfit text-gray-500">Stellar</div>
+                <div className="text-xl font-bold font-outfit text-gray-500">Quantum</div>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -180,16 +214,16 @@ export default function Home() {
       <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">Our Expertise</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">{siteContent?.services_title || 'Our Expertise'}</h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Comprehensive IT solutions tailored to transform your ideas into powerful digital products.
+              {siteContent?.services_description || 'Comprehensive IT solutions tailored to transform your ideas into powerful digital products.'}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.slice(0, 6).map((service, index) => (
               <ServiceCard 
-                key={service.title}
+                key={service.id || service.title}
                 {...service}
                 delay={index * 0.1}
               />
@@ -204,14 +238,14 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
-                {homeContent?.whyTitle || <>Why partner with <br /> <span className="text-gradient">Prime Logitech?</span></>}
+                {siteContent?.why_title || <>Why partner with <br /> <span className="text-gradient">Prime Logitech?</span></>}
               </h2>
               <p className="text-gray-400 text-lg mb-8">
-                {homeContent?.whyDescription || "We don't just write code; we build strategic digital assets. Our approach combines technical excellence with business acumen to deliver measurable results."}
+                {siteContent?.why_description || "We don't just write code; we build strategic digital assets. Our approach combines technical excellence with business acumen to deliver measurable results."}
               </p>
               
               <div className="space-y-4">
-                {whyPoints.map((item, index) => (
+                {whyChecklist.map((item, index) => (
                   <motion.div 
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
@@ -234,11 +268,11 @@ export default function Home() {
                   <BrandLogo size="lg" eager />
                   <div className="text-right">
                     <div className="text-xs uppercase tracking-[0.35em] text-brand-green/80">Studio panel</div>
-                    <div className="text-sm text-gray-400">{homeContent?.whyPanelTitle || 'Creative delivery, engineered to scale'}</div>
+                    <div className="text-sm text-gray-400">{siteContent?.why_panel_title || 'Creative delivery, engineered to scale'}</div>
                   </div>
                 </div>
                 <p className="text-gray-300 leading-relaxed mb-6">
-                  {homeContent?.whyPanelDescription || 'The right side is a living visual panel that can be customized from the admin area. It is meant to reinforce the brand rather than display loading content.'}
+                  {siteContent?.why_panel_description || 'The right side is a living visual panel that can be customized from the admin area. It is meant to reinforce the brand rather than display loading content.'}
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   {['Speed', 'Security', 'Support'].map((label) => (
@@ -285,7 +319,7 @@ export default function Home() {
               <div className="flex gap-2">
                 {featuredProjects.map((project, index) => (
                   <button
-                    key={project.title}
+                    key={project.id || project.title}
                     type="button"
                     onClick={() => setActiveProjectIndex(index)}
                     className={`h-2.5 rounded-full transition-all ${index === activeProjectIndex ? 'w-10 bg-brand-blue' : 'w-2.5 bg-white/30'}`}
@@ -308,7 +342,7 @@ export default function Home() {
               <div className="overflow-hidden rounded-[1.5rem]">
                 {featuredProjects.length > 0 ? (
                   <motion.div
-                    key={featuredProjects[activeProjectIndex]?.title}
+                    key={featuredProjects[activeProjectIndex]?.id || featuredProjects[activeProjectIndex]?.title}
                     initial={{ opacity: 0, x: 40 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -40 }}
@@ -334,16 +368,16 @@ export default function Home() {
       <section className="py-24 bg-white/[0.02] border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">{homeContent?.clientSuccessTitle || 'Client Success'}</h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">{siteContent?.client_success_title || 'Client Success'}</h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              {homeContent?.clientSuccessDescription || "Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech."}
+              {siteContent?.client_success_description || "Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech."}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.slice(0, 3).map((testimonial, index) => (
               <TestimonialCard 
-                key={testimonial.name}
+                key={testimonial.id || testimonial.name}
                 {...testimonial}
                 delay={index * 0.1}
               />
@@ -353,7 +387,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <CTASection />
+      <CTASection siteContent={siteContent} />
     </div>
   );
 }

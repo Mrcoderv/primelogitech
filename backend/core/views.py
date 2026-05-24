@@ -1,33 +1,151 @@
-from rest_framework.decorators import api_view
+from rest_framework import generics, status
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
-
-from .models import HomeContent, Project, TeamMember
-from .serializers import HomeContentSerializer, ProjectSerializer, TeamMemberSerializer
-
-@api_view(['GET'])
-def home(request):
-    return Response({"message": "API Working"})
+from rest_framework.views import APIView
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import *
+from .serializers import *
 
 
-@api_view(["GET"])
-def project_list(request):
-    projects = Project.objects.all()
-    serializer = ProjectSerializer(projects, many=True, context={"request": request})
-    return Response(serializer.data)
+# ── PUBLIC ────────────────────────────────────────────────────
+
+class SiteContentView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response(SiteContentSerializer(SiteContent.load()).data)
+
+class ProjectListView(generics.ListAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [AllowAny]
+
+class TeamListView(generics.ListAPIView):
+    queryset = TeamMember.objects.filter(is_active=True)
+    serializer_class = TeamMemberSerializer
+    permission_classes = [AllowAny]
+
+class ServiceListView(generics.ListAPIView):
+    queryset = Service.objects.filter(is_active=True)
+    serializer_class = ServiceSerializer
+    permission_classes = [AllowAny]
+
+class TestimonialListView(generics.ListAPIView):
+    queryset = Testimonial.objects.filter(is_active=True)
+    serializer_class = TestimonialSerializer
+    permission_classes = [AllowAny]
+
+class JobListView(generics.ListAPIView):
+    queryset = Job.objects.filter(is_open=True)
+    serializer_class = JobSerializer
+    permission_classes = [AllowAny]
+
+class ContactCreateView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        s = ContactMessageSerializer(data=request.data)
+        if s.is_valid():
+            msg = s.save()
+            try:
+                send_mail(
+                    subject=f"[PLT Contact] {msg.subject}",
+                    message=f"From: {msg.name} <{msg.email}>\n\n{msg.message}",
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[settings.ADMIN_EMAIL],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
+            return Response({'success': True}, status=201)
+        return Response(s.errors, status=400)
+
+class NewsletterSubscribeView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get('email', '').strip()
+        if not email:
+            return Response({'error': 'Email required'}, status=400)
+        sub, created = NewsletterSubscriber.objects.get_or_create(email=email)
+        if not created:
+            sub.is_active = True
+            sub.save()
+        return Response({'success': True}, status=201)
 
 
-@api_view(["GET"])
-def home_content(request):
-    content = HomeContent.objects.order_by("id").first()
-    if content is None:
-        content = HomeContent.objects.create()
+# ── ADMIN ONLY ────────────────────────────────────────────────
 
-    serializer = HomeContentSerializer(content, context={"request": request})
-    return Response(serializer.data)
+class AdminSiteContentView(APIView):
+    permission_classes = [IsAdminUser]
+    def get(self, request):
+        return Response(SiteContentSerializer(SiteContent.load()).data)
+    def patch(self, request):
+        s = SiteContentSerializer(SiteContent.load(), data=request.data, partial=True)
+        if s.is_valid():
+            s.save()
+            return Response(s.data)
+        return Response(s.errors, status=400)
 
+class AdminProjectListCreateView(generics.ListCreateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAdminUser]
 
-@api_view(["GET"])
-def team_list(request):
-    members = TeamMember.objects.filter(is_active=True).order_by("order", "name")
-    serializer = TeamMemberSerializer(members, many=True, context={"request": request})
-    return Response(serializer.data)
+class AdminProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminTeamListCreateView(generics.ListCreateAPIView):
+    queryset = TeamMember.objects.all()
+    serializer_class = TeamMemberSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminTeamDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TeamMember.objects.all()
+    serializer_class = TeamMemberSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminServiceListCreateView(generics.ListCreateAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminServiceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminTestimonialListCreateView(generics.ListCreateAPIView):
+    queryset = Testimonial.objects.all()
+    serializer_class = TestimonialSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminTestimonialDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Testimonial.objects.all()
+    serializer_class = TestimonialSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminJobListCreateView(generics.ListCreateAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminJobDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminContactListView(generics.ListAPIView):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminContactDetailView(generics.RetrieveUpdateAPIView):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    permission_classes = [IsAdminUser]
+
+class AdminNewsletterListView(generics.ListAPIView):
+    queryset = NewsletterSubscriber.objects.all()
+    serializer_class = NewsletterSubscriberSerializer
+    permission_classes = [IsAdminUser]

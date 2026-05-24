@@ -28,3 +28,10 @@ out/
 Thumbs.db
 .vercel
 .env*.local
+
+# Django generated
+__pycache__/
+*.pyc
+backend/staticfiles/
+backend/db.sqlite3
+backend/*.db

@@ -1,30 +1,38 @@
-"""
-URL configuration for config project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-
-from core.views import home, home_content, project_list, team_list
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from core.views import *
 
 urlpatterns = [
-    path("", home),
-    path("api/projects/", project_list),
-    path("api/home-content/", home_content),
-    path("api/team/", team_list),
-    path("admin/", admin.site.urls),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('admin/', admin.site.urls),
+
+    # Auth
+    path('api/token/', TokenObtainPairView.as_view()),
+    path('api/token/refresh/', TokenRefreshView.as_view()),
+
+    # Public
+    path('api/site-content/', SiteContentView.as_view()),
+    path('api/projects/', ProjectListView.as_view()),
+    path('api/team/', TeamListView.as_view()),
+    path('api/services/', ServiceListView.as_view()),
+    path('api/testimonials/', TestimonialListView.as_view()),
+    path('api/jobs/', JobListView.as_view()),
+    path('api/contact/', ContactCreateView.as_view()),
+    path('api/newsletter/', NewsletterSubscribeView.as_view()),
+
+    # Admin only
+    path('api/admin/site-content/', AdminSiteContentView.as_view()),
+    path('api/admin/projects/', AdminProjectListCreateView.as_view()),
+    path('api/admin/projects/<int:pk>/', AdminProjectDetailView.as_view()),
+    path('api/admin/team/', AdminTeamListCreateView.as_view()),
+    path('api/admin/team/<int:pk>/', AdminTeamDetailView.as_view()),
+    path('api/admin/services/', AdminServiceListCreateView.as_view()),
+    path('api/admin/services/<int:pk>/', AdminServiceDetailView.as_view()),
+    path('api/admin/testimonials/', AdminTestimonialListCreateView.as_view()),
+    path('api/admin/testimonials/<int:pk>/', AdminTestimonialDetailView.as_view()),
+    path('api/admin/jobs/', AdminJobListCreateView.as_view()),
+    path('api/admin/jobs/<int:pk>/', AdminJobDetailView.as_view()),
+    path('api/admin/contacts/', AdminContactListView.as_view()),
+    path('api/admin/contacts/<int:pk>/', AdminContactDetailView.as_view()),
+    path('api/admin/newsletter/', AdminNewsletterListView.as_view()),
+]

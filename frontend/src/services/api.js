@@ -1,161 +1,283 @@
+import axios from 'axios';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-const fallbackHomeContent = {
-  whyTitle: 'Why partner with Prime Logitech?',
-  whyDescription:
-    "We don't just write code; we build strategic digital assets. Our approach combines technical excellence with business acumen to deliver measurable results.",
-  whyPoints: [
-    'Agile development methodology for rapid delivery',
-    'Enterprise-grade security and scalability',
-    'Award-winning UI/UX design team',
-    '24/7 dedicated support and maintenance',
-  ],
-  whyPanelTitle: 'Creative delivery, engineered to scale',
-  whyPanelDescription:
-    'The right side is a living visual panel that can be customized from the admin area. It is meant to reinforce the brand rather than display loading content.',
-  clientSuccessTitle: 'Client Success',
-  clientSuccessDescription:
-    "Don't just take our word for it. Hear what our partners have to say about working with Prime Logitech.",
-};
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
 
-const fallbackProjects = [
-  {
-    title: 'FinTech Dashboard',
-    category: 'Web App',
-    description: 'A comprehensive financial dashboard for real-time analytics and portfolio management.',
-    techStack: ['React', 'TypeScript', 'Tailwind CSS'],
-    image: null,
-    link: '',
-    isPinned: true,
-  },
-  {
-    title: 'HealthCare Platform',
-    category: 'Mobile App',
-    description: 'Telemedicine app connecting patients with doctors through secure video consultations.',
-    techStack: ['React Native', 'Node.js', 'MongoDB'],
-    image: null,
-    link: '',
-    isPinned: true,
-  },
-  {
-    title: 'E-Commerce Suite',
-    category: 'Web App',
-    description: 'Scalable e-commerce solution with advanced inventory management and AI recommendations.',
-    techStack: ['Next.js', 'Stripe', 'Prisma'],
-    image: null,
-    link: '',
-    isPinned: false,
-  },
-];
+// ─── Interceptors ────────────────────────────────────────────────────────────
 
-const fallbackTeam = [
-  {
-    name: 'Prasiddha Gyawali',
-    role: 'CEO & Founder',
-    bio: 'Visionary leader driving the strategic direction of Prime Logitech to deliver exceptional digital experiences.',
-    image: null,
-    order: 0,
-  },
-  {
-    name: 'Pralhad Gyawali',
-    role: 'Co-Founder',
-    bio: 'Passionate about building scalable systems and establishing the core technical foundation of our enterprise solutions.',
-    image: null,
-    order: 1,
-  },
-  {
-    name: 'Binit Raj Pandey',
-    role: 'Co-Founder',
-    bio: 'Dedicated to crafting intuitive products and driving innovation across all aspects of design and development.',
-    image: null,
-    order: 2,
-  },
-  {
-    name: 'Raghav Panthi',
-    role: 'Junior Co-Founder',
-    bio: 'A rising talent focusing on modern development practices and bringing fresh perspectives to our technology stack.',
-    image: null,
-    order: 3,
-  },
-  {
-    name: 'Ekata Pokherel',
-    role: 'Junior Co-Founder',
-    bio: 'Focused on collaborative product thinking, delivery quality, and keeping the team execution sharp.',
-    image: null,
-    order: 4,
-  },
-];
+// Attach access token to every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-function normalizeProject(project) {
-  return {
-    title: project.title,
-    category: project.category || 'Project',
-    description: project.description || '',
-    image: project.image_url || null,
-    link: project.link || '',
-    techStack: Array.isArray(project.tech_stack)
-      ? project.tech_stack
-      : typeof project.tech_stack === 'string' && project.tech_stack.length > 0
-        ? project.tech_stack.split(',').map((item) => item.trim()).filter(Boolean)
-        : [],
-    isPinned: Boolean(project.is_pinned),
-  };
+// Auto-refresh on 401
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/api/token/')
+    ) {
+      originalRequest._retry = true;
+      const refresh = localStorage.getItem('refresh_token');
+      if (refresh) {
+        try {
+          const { data } = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
+            refresh,
+          });
+          localStorage.setItem('access_token', data.access);
+          originalRequest.headers.Authorization = `Bearer ${data.access}`;
+          return api(originalRequest);
+        } catch {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user');
+          window.location.href = '/secret-admin';
+        }
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+export async function loginAdmin(username, password) {
+  const { data } = await api.post('/api/token/', { username, password });
+  localStorage.setItem('access_token', data.access);
+  localStorage.setItem('refresh_token', data.refresh);
+  return data;
 }
 
-async function fetchJson(path) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      Accept: 'application/json',
-    },
+export function logoutAdmin() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('user');
+}
+
+// ─── Public ──────────────────────────────────────────────────────────────────
+
+export async function fetchSiteContent() {
+  const { data } = await api.get('/api/site-content/');
+  return data;
+}
+
+export async function fetchProjects() {
+  const { data } = await api.get('/api/projects/');
+  return data;
+}
+
+export async function fetchTeam() {
+  const { data } = await api.get('/api/team/');
+  return data;
+}
+
+export async function fetchServices() {
+  const { data } = await api.get('/api/services/');
+  return data;
+}
+
+export async function fetchTestimonials() {
+  const { data } = await api.get('/api/testimonials/');
+  return data;
+}
+
+export async function fetchJobs() {
+  const { data } = await api.get('/api/jobs/');
+  return data;
+}
+
+export async function submitContact(payload) {
+  const { data } = await api.post('/api/contact/', payload);
+  return data;
+}
+
+export async function subscribeNewsletter(email) {
+  const { data } = await api.post('/api/newsletter/', { email });
+  return data;
+}
+
+// ─── Admin: Site Content ─────────────────────────────────────────────────────
+
+export async function fetchAdminSiteContent() {
+  const { data } = await api.get('/api/admin/site-content/');
+  return data;
+}
+
+export async function updateAdminSiteContent(payload) {
+  const { data } = await api.patch('/api/admin/site-content/', payload);
+  return data;
+}
+
+// ─── Admin: Projects ─────────────────────────────────────────────────────────
+
+export async function fetchAdminProjects() {
+  const { data } = await api.get('/api/admin/projects/');
+  return data;
+}
+
+export async function createAdminProject(payload) {
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, val]) => {
+    if (key === 'tech_stack' && Array.isArray(val)) {
+      form.append(key, JSON.stringify(val));
+    } else if (val !== null && val !== undefined) {
+      form.append(key, val);
+    }
   });
-
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
-  }
-
-  return response.json();
+  const { data } = await api.post('/api/admin/projects/', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
 }
 
-export async function loadProjects() {
-  try {
-    const data = await fetchJson('/api/projects/');
-    const projects = Array.isArray(data) ? data : [];
-    return projects.map(normalizeProject);
-  } catch (error) {
-    return fallbackProjects;
-  }
+export async function updateAdminProject(id, payload) {
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, val]) => {
+    if (key === 'tech_stack' && Array.isArray(val)) {
+      form.append(key, JSON.stringify(val));
+    } else if (key === 'image' && !val) {
+      return;
+    } else if (val !== null && val !== undefined) {
+      form.append(key, val);
+    }
+  });
+  const { data } = await api.patch(`/api/admin/projects/${id}/`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
 }
 
-export async function loadHomeContent() {
-  try {
-    const data = await fetchJson('/api/home-content/');
-    return {
-      whyTitle: data.why_title,
-      whyDescription: data.why_description,
-      whyPoints: Array.isArray(data.why_points) ? data.why_points : [],
-      whyPanelTitle: data.why_panel_title,
-      whyPanelDescription: data.why_panel_description,
-      clientSuccessTitle: data.client_success_title,
-      clientSuccessDescription: data.client_success_description,
-    };
-  } catch (error) {
-    return fallbackHomeContent;
-  }
+export async function deleteAdminProject(id) {
+  await api.delete(`/api/admin/projects/${id}/`);
 }
 
-export async function loadTeam() {
-  try {
-    const data = await fetchJson('/api/team/');
-    return Array.isArray(data) && data.length > 0
-      ? data.map((member) => ({
-          name: member.name,
-          role: member.role,
-          bio: member.bio,
-          image: member.image_url || null,
-          order: member.order,
-        }))
-      : fallbackTeam;
-  } catch (error) {
-    return fallbackTeam;
-  }
+// ─── Admin: Team ─────────────────────────────────────────────────────────────
+
+export async function fetchAdminTeam() {
+  const { data } = await api.get('/api/admin/team/');
+  return data;
 }
+
+export async function createAdminTeam(payload) {
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, val]) => {
+    if (val !== null && val !== undefined) form.append(key, val);
+  });
+  const { data } = await api.post('/api/admin/team/', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
+export async function updateAdminTeam(id, payload) {
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, val]) => {
+    if (key === 'image' && !val) return;
+    if (val !== null && val !== undefined) form.append(key, val);
+  });
+  const { data } = await api.patch(`/api/admin/team/${id}/`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
+export async function deleteAdminTeam(id) {
+  await api.delete(`/api/admin/team/${id}/`);
+}
+
+// ─── Admin: Services ─────────────────────────────────────────────────────────
+
+export async function fetchAdminServices() {
+  const { data } = await api.get('/api/admin/services/');
+  return data;
+}
+
+export async function createAdminService(payload) {
+  const { data } = await api.post('/api/admin/services/', payload);
+  return data;
+}
+
+export async function updateAdminService(id, payload) {
+  const { data } = await api.patch(`/api/admin/services/${id}/`, payload);
+  return data;
+}
+
+export async function deleteAdminService(id) {
+  await api.delete(`/api/admin/services/${id}/`);
+}
+
+// ─── Admin: Testimonials ─────────────────────────────────────────────────────
+
+export async function fetchAdminTestimonials() {
+  const { data } = await api.get('/api/admin/testimonials/');
+  return data;
+}
+
+export async function createAdminTestimonial(payload) {
+  const { data } = await api.post('/api/admin/testimonials/', payload);
+  return data;
+}
+
+export async function updateAdminTestimonial(id, payload) {
+  const { data } = await api.patch(`/api/admin/testimonials/${id}/`, payload);
+  return data;
+}
+
+export async function deleteAdminTestimonial(id) {
+  await api.delete(`/api/admin/testimonials/${id}/`);
+}
+
+// ─── Admin: Jobs ─────────────────────────────────────────────────────────────
+
+export async function fetchAdminJobs() {
+  const { data } = await api.get('/api/admin/jobs/');
+  return data;
+}
+
+export async function createAdminJob(payload) {
+  const { data } = await api.post('/api/admin/jobs/', payload);
+  return data;
+}
+
+export async function updateAdminJob(id, payload) {
+  const { data } = await api.patch(`/api/admin/jobs/${id}/`, payload);
+  return data;
+}
+
+export async function deleteAdminJob(id) {
+  await api.delete(`/api/admin/jobs/${id}/`);
+}
+
+// ─── Admin: Contacts ─────────────────────────────────────────────────────────
+
+export async function fetchAdminContacts() {
+  const { data } = await api.get('/api/admin/contacts/');
+  return data;
+}
+
+export async function fetchAdminContact(id) {
+  const { data } = await api.get(`/api/admin/contacts/${id}/`);
+  return data;
+}
+
+// ─── Admin: Newsletter ───────────────────────────────────────────────────────
+
+export async function fetchAdminNewsletter() {
+  const { data } = await api.get('/api/admin/newsletter/');
+  return data;
+}
+
+export default api;

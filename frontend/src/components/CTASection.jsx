@@ -1,9 +1,23 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { fetchSiteContent } from '../services/api';
 
-export default function CTASection() {
+export default function CTASection({ siteContent: propContent }) {
+  const [fetchedContent, setFetchedContent] = useState(null);
+
+  useEffect(() => {
+    if (propContent) return;
+    let active = true;
+    fetchSiteContent().then((data) => {
+      if (active) setFetchedContent(data);
+    });
+    return () => { active = false; };
+  }, [propContent]);
+
+  const content = propContent || fetchedContent || {};
+
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background gradients */}
@@ -18,17 +32,17 @@ export default function CTASection() {
           className="glass-panel p-12 text-center rounded-3xl"
         >
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Ready to <span className="text-gradient">Transform</span> Your Business?
+            {content.cta_title || <>Ready to <span className="text-gradient">Transform</span> Your Business?</>}
           </h2>
           <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Join innovative startups and enterprises who trust Prime Logic Tech to build scalable, secure, and modern digital solutions.
+            {content.cta_description || "Join innovative startups and enterprises who trust Prime Logic Tech to build scalable, secure, and modern digital solutions."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
-              to="/contact" 
+              to={content.cta_button_link || "/contact"} 
               className="bg-white text-black px-8 py-4 rounded-xl font-medium hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2 group"
             >
-              Start a Project
+              {content.cta_button_text || "Start a Project"}
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link 

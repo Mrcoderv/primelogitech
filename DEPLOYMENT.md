@@ -1,296 +1,251 @@
-# Deployment Guide - Prime Logic Tech
+# Deployment Guide — Prime Logic Tech
 
-Complete guide for deploying frontend on **Vercel** and backend on **Render**.
-
----
-
-## 🔧 Prerequisites
-
-- GitHub repository with Rvbranch pushed
-- Vercel account (vercel.com)
-- Render account (render.com)
+Complete guide for deploying **frontend on Vercel** and **backend on Render (free tier)**.
 
 ---
 
-## 📦 Backend Deployment (Render)
-
-### Step 1: Set up Render.com
-
-1. Go to [render.com](https://render.com)
-2. Sign in or create account
-3. Click **"New +"** → **"Web Service"**
-
-### Step 2: Connect GitHub
-
-1. Select **"Deploy an existing repository"**
-2. Connect your GitHub account
-3. Select repository: **Mrcoderv/primelogitech**
-4. Branch: **Rvbranch**
-
-### Step 3: Configure Service
-
-| Field | Value |
-|-------|-------|
-| **Name** | `primelogitech-backend` |
-| **Environment** | `Docker` |
-| **Dockerfile Path** | `backend/Dockerfile` |
-| **Plan** | `Free` (or Paid for production) |
-
-### Step 4: Set Environment Variables
-
-Click **"Environment"** and add these variables:
+## 📦 Architecture Overview
 
 ```
-DEBUG=False
-SECRET_KEY=<generate-random-secret-key>
-ALLOWED_HOSTS=<your-render-url>.onrender.com,localhost
-CORS_ALLOW_ALL_ORIGINS=False
-CORS_ALLOWED_ORIGINS=<your-vercel-frontend-url>.vercel.app,http://localhost:3000
-PORT=8000
+User Browser
+     │
+     ▼
+┌─────────────────────┐       HTTP /api/*        ┌──────────────────────┐       ORM       ┌──────────────────┐
+│  Frontend (Vercel)  │ ──────────────────────▶ │  Backend (Render)   │ ─────────────▶ │  PostgreSQL      │
+│                     │                         │                     │                │  (Render Free)   │
+│  React 19 + Vite    │  Axios → DRF REST API   │  Django + Gunicorn  │  psycopg2       │  1 GB storage    │
+│  Tailwind 4         │  JWT Auth               │  3 workers (256 MB) │                │                  │
+└─────────────────────┘                         └──────────────────────┘                └──────────────────┘
+                                                         │
+                                                  ┌──────┴──────┐
+                                                  │  Cloudinary  │  ← Media files (images)
+                                                  │  Gmail SMTP  │  ← Contact form emails
+                                                  └─────────────┘
 ```
 
-**To generate SECRET_KEY:**
+---
+
+## 🖥️ Backend Deployment (Render — Free Tier)
+
+### Prerequisites
+
+- GitHub repo pushed to **`Rvbranch`**
+- Render account (sign up at [render.com](https://render.com))
+
+### Step 1: Create a PostgreSQL Database
+
+1. Go to [dashboard.render.com](https://dashboard.render.com)
+2. Click **New +** → **PostgreSQL**
+3. Configure:
+
+   | Field | Value |
+   |-------|-------|
+   | **Name** | `primelogitech-db` |
+   | **Plan** | **Free** ($0/month) |
+   | **Region** | `Oregon (US West)` |
+
+4. Click **Create Database**
+5. Wait for it to be provisioned (~2-3 minutes)
+6. **Copy the Internal Database URL** — you'll use this later.
+
+> ⚠️ Render free PostgreSQL has **1 GB storage** and **256 MB RAM** — ample for this application.
+
+### Step 2: Deploy the Backend Web Service
+
+1. Click **New +** → **Web Service**
+2. Connect your GitHub repo → `Mrcoderv/primelogitech`
+3. Branch: **`Rvbranch`**
+4. Configure:
+
+   | Field | Value |
+   |-------|-------|
+   | **Name** | `primelogitech-backend` |
+   | **Environment** | `Docker` |
+   | **Dockerfile Path** | `backend/Dockerfile` |
+   | **Plan** | **Free** |
+
+5. Click **Advanced** → **Add Environment Variables**
+
+   | Key | Value |
+   |-----|-------|
+   | `DEBUG` | `False` |
+   | `SECRET_KEY` | Click **Generate Value** |
+   | `ALLOWED_HOSTS` | `.onrender.com,localhost` |
+   | `CORS_ALLOWED_ORIGINS` | `https://primelogitech.vercel.app,http://localhost:3000` |
+   | `PORT` | `8000` |
+   | `PYTHON_VERSION` | `3.12` |
+
+6. For `DATABASE_URL`: Click **Add from .env** → **Reference Secret** → pick `DATABASE_URL`
+
+   > If using `render.yaml` (auto-deploy), the DB URL is linked automatically.
+
+7. Click **Create Web Service**
+8. Wait for build (~5–8 minutes on free tier)
+
+### Step 3: Create Admin Superuser
+
+After deployment, open the **Render Shell**:
+
 ```bash
-python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+python manage.py createsuperuser
 ```
 
-### Step 5: Deploy
+Or via the Render Dashboard:
+1. Go to your web service
+2. **Shell** tab
+3. Run `python manage.py createsuperuser`
 
-1. Click **"Create Web Service"**
-2. Wait for build to complete (5-10 minutes)
-3. Copy the deployed URL (e.g., `https://primelogitech-backend.onrender.com`)
-4. Test API: Visit `https://your-backend-url/api/`
+> ⚠️ **Change the default password** for security:
+> ```bash
+> python manage.py changepassword raghav
+> ```
+
+### Step 4: Verify Backend
+
+```bash
+curl https://primelogitech-backend.onrender.com/api/site-content/
+curl https://primelogitech-backend.onrender.com/api/projects/
+```
 
 ---
 
 ## 🌐 Frontend Deployment (Vercel)
 
-### Step 1: Deploy via Vercel
+### Step 1: Import Project
 
 1. Go to [vercel.com](https://vercel.com)
-2. Click **"New Project"**
-3. Import GitHub repository: **Mrcoderv/primelogitech**
-4. Framework Preset: **Vite**
+2. Click **Add New** → **Project**
+3. Import `Mrcoderv/primelogitech`
+4. Branch: **`Rvbranch`**
+5. Framework Preset: **Vite**
 
-### Step 2: Configure Build Settings
+### Step 2: Configure Build
 
 | Setting | Value |
 |---------|-------|
+| **Root Directory** | `.` (project root) |
 | **Build Command** | `cd frontend && npm ci && npm run build` |
 | **Output Directory** | `frontend/dist` |
-| **Root Directory** | `.` (root) |
 
-### Step 3: Set Environment Variables
+Alternatively, the root [`vercel.json`](./vercel.json) already configures these.
 
-Click **"Environment Variables"** and add:
+### Step 3: Environment Variables
 
-```
-VITE_API_URL=https://your-backend-url.onrender.com
-```
-
-Example: `VITE_API_URL=https://primelogitech-backend.onrender.com`
+| Key | Value |
+|-----|-------|
+| `VITE_API_URL` | `https://primelogitech-backend.onrender.com` |
 
 ### Step 4: Deploy
 
-1. Click **"Deploy"**
-2. Wait for deployment (2-3 minutes)
-3. Get Vercel URL (e.g., `https://primelogitech.vercel.app`)
+Click **Deploy** (~2 minutes).
 
-### Step 5: Update Backend CORS
+### Step 5: Wire Frontend → Backend
 
-Go back to Render dashboard:
-1. **primelogitech-backend** service → **Environment**
-2. Update `CORS_ALLOWED_ORIGINS`:
-   ```
-   https://primelogitech.vercel.app,http://localhost:3000
-   ```
-3. Click **"Save"** (service will redeploy)
+Go back to **Render** → **Environment Variables** and add your Vercel URL:
 
----
-
-## 🔄 Frontend Configuration
-
-Update [frontend/src/services/api.js](../frontend/src/services/api.js):
-
-```javascript
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-
-export const fetchProjects = async () => {
-  const response = await fetch(`${API_URL}/api/projects/`);
-  return response.json();
-};
-
-// All other API calls should use API_URL
+```
+CORS_ALLOWED_ORIGINS=https://primelogitech.vercel.app,http://localhost:3000
 ```
 
 ---
 
-## 📝 Using render.yaml
-
-The `render.yaml` file automatically configures:
-
-✅ Backend Docker deployment  
-✅ Auto-deploy on push to Rvbranch  
-✅ Database migrations on deploy  
-✅ Static files collection  
-✅ Health check endpoint  
-
-**Render uses render.yaml automatically when detected in repo root.**
-
----
-
-## 🧪 Testing Deployments
-
-### Backend Tests
-
-```bash
-# Test API endpoint
-curl https://your-backend-url.onrender.com/api/
-
-# Test services
-curl https://your-backend-url.onrender.com/api/services/
-
-# Test projects
-curl https://your-backend-url.onrender.com/api/projects/
-
-# Test featured projects
-curl https://your-backend-url.onrender.com/api/projects/featured/
-```
-
-### Frontend Tests
-
-1. Visit `https://your-frontend-url.vercel.app`
-2. Check Network tab - API calls should go to Render backend
-3. Verify all pages load and data displays
-
----
-
-## 📊 Admin Access
-
-Access Django admin:
-```
-https://your-backend-url.onrender.com/admin/
-Username: raghav
-Password: raghav@3345
-```
-
-**⚠️ SECURITY WARNING**: Change admin password in production!
-
-```bash
-# SSH into Render service
-# Or use Django shell in Render logs
-python manage.py changepassword raghav
-```
-
----
-
-## 🔐 Production Security Checklist
+## 🔐 Required Environment Variables
 
 ### Backend (Render)
 
-- [ ] Set `DEBUG=False`
-- [ ] Generate new `SECRET_KEY` (don't use development key)
-- [ ] Set `ALLOWED_HOSTS` to your domain only
-- [ ] Enable `SECURE_SSL_REDIRECT=True`
-- [ ] Change admin password
-- [ ] Use environment variables for sensitive data
-- [ ] Enable GitHub 2FA and branch protection
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `DEBUG` | `False` for production | ✅ |
+| `SECRET_KEY` | Django secret key | ✅ |
+| `ALLOWED_HOSTS` | Comma-separated domains | ✅ |
+| `CORS_ALLOWED_ORIGINS` | Frontend URL(s) for CORS | ✅ |
+| `PORT` | `8000` | ✅ |
+| `DATABASE_URL` | PostgreSQL connection string | ✅ (auto by Render) |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary account name | Optional |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | Optional |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | Optional |
+| `EMAIL_HOST_USER` | Gmail address for SMTP | Optional |
+| `EMAIL_HOST_PASSWORD` | Gmail app password | Optional |
+| `ADMIN_EMAIL` | Where contact form emails go | Optional |
 
 ### Frontend (Vercel)
 
-- [ ] Set `VITE_API_URL` to production backend
-- [ ] Build optimization enabled
-- [ ] Analytics enabled (optional)
-- [ ] Preview deployments configured
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `VITE_API_URL` | Backend URL (e.g., `https://primelogitech-backend.onrender.com`) | ✅ |
 
 ---
 
-## 🚀 Automated Deployments
+## 🔄 Auto-Deploy
 
-### Auto-Deploy on Git Push
-
-Both services auto-deploy when you push to **Rvbranch**:
+Both Render and Vercel auto-deploy on every push to `Rvbranch`:
 
 ```bash
-# Make changes locally
 git add .
-git commit -m "Feature: add new project"
+git commit -m "update"
 git push origin Rvbranch
-
-# Automatic deployment starts:
-# 1. Render detects changes
-# 2. Backend rebuilds Docker image
-# 3. Vercel detects changes
-# 4. Frontend rebuilds and deploys
 ```
 
----
-
-## 📱 Environment Variables Summary
-
-### Backend (.env on Render)
-
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `DEBUG` | Development mode | `False` |
-| `SECRET_KEY` | Django security | Django secret string |
-| `ALLOWED_HOSTS` | Allowed domains | `yourdomain.onrender.com` |
-| `CORS_ALLOWED_ORIGINS` | Frontend origin | `https://yourdomain.vercel.app` |
-| `PORT` | Server port | `8000` |
-
-### Frontend (Vercel Build Env)
-
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `VITE_API_URL` | Backend API URL | `https://yourapi.onrender.com` |
+Render: Rebuilds Docker image → runs migrations → deploys
+Vercel: Rebuilds frontend → deploys to CDN
 
 ---
 
-## 🆘 Troubleshooting
+## 🧪 Testing Checklist
 
-### Backend Won't Deploy (Render)
-
-1. Check build logs: Render Dashboard → Logs
-2. Verify Docker build succeeds locally:
-   ```bash
-   cd backend && docker build -t primelogitech .
-   ```
-3. Check `requirements.txt` for missing dependencies
-4. Verify `SECRET_KEY` environment variable set
-
-### Frontend API Errors
-
-1. Check `VITE_API_URL` in Vercel environment variables
-2. Verify backend `CORS_ALLOWED_ORIGINS` includes frontend URL
-3. Check browser console for CORS errors
-4. Test backend API directly: `curl <backend-url>/api/`
-
-### Database Issues
-
-- Reset database on Render: Delete SQLite, redeploy
-- Migration fails: Check logs for SQL errors
-- Data missing: Verify migrations ran (see Render logs)
+- [ ] Backend API responds: `curl https://your-backend.onrender.com/api/site-content/`
+- [ ] Frontend loads: `https://primelogitech.vercel.app`
+- [ ] API calls in browser Network tab go to Render backend
+- [ ] Admin login works: `https://primelogitech-backend.onrender.com/admin/`
+- [ ] All pages load (Home, About, Services, Portfolio, Careers, Contact)
+- [ ] Contact form submits successfully
+- [ ] Newsletter subscription works
+- [ ] CORS errors are absent in browser console
 
 ---
 
-## 📞 Support Links
+## 🔒 Production Security
 
-- [Render Documentation](https://render.com/docs)
-- [Vercel Documentation](https://vercel.com/docs)
-- [Django Deployment](https://docs.djangoproject.com/en/6.0/howto/deployment/)
-- [Vite Environment Variables](https://vitejs.dev/guide/env-and-mode.html)
+- [ ] `DEBUG=False`
+- [ ] `SECRET_KEY` generated (not default)
+- [ ] Admin password changed from default
+- [ ] `ALLOWED_HOSTS` restricted
+- [ ] `CORS_ALLOWED_ORIGINS` only includes your Vercel URL
+- [ ] Cloudinary credentials set (if using media uploads)
+- [ ] Gmail SMTP app password configured (not regular password)
 
 ---
 
-## ✅ Deployment Checklist
+## 🔧 Troubleshooting
 
-- [ ] Backend deployed on Render
-- [ ] Frontend deployed on Vercel
-- [ ] Environment variables set correctly
-- [ ] CORS configured for both domains
-- [ ] API calls working in frontend
-- [ ] Admin panel accessible
-- [ ] Database migrations completed
-- [ ] All pages loading without errors
-- [ ] Static files serving correctly
-- [ ] Auto-deploy from GitHub working
+| Issue | Solution |
+|-------|----------|
+| **502 Bad Gateway** | DB not ready; wait for PostgreSQL provisioning |
+| **CORS error** | Add Vercel URL to `CORS_ALLOWED_ORIGINS` on Render |
+| **401 Unauthorized** | JWT token expired; login again |
+| **Admin login fails** | Run `createsuperuser` via Render Shell |
+| **Static files 404** | Run `collectstatic` via Render Shell |
+
+---
+
+## 📊 Render Free Tier Limits
+
+| Resource | Limit | Our Usage |
+|----------|-------|-----------|
+| RAM | 256 MB | ~80–120 MB |
+| vCPU | 0.5 | Comfortable |
+| Storage (DB) | 1 GB | <10 MB |
+| Build hours | 500/mo | ~2–3 hrs |
+| Idle sleep | 15 min inactivity | Wakes on request (takes ~30 sec) |
+
+> ⚡ Free tier services **sleep after 15 minutes of inactivity**. The first request after a sleep takes ~30 seconds to wake up.
+
+---
+
+## 🚀 Quick Deploy (Using render.yaml)
+
+The [`render.yaml`](./render.yaml) file in the repo root auto-configures everything:
+
+1. Push to `Rvbranch` — Render detects `render.yaml`
+2. Do **New +** → **Blueprint** → select repo
+3. Everything is pre-configured: web service + PostgreSQL + env vars

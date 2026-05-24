@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from .models import HomeContent, Project, TeamMember
+from .models import SiteContent, Project, TeamMember, Service, Testimonial, Job, ContactMessage, NewsletterSubscriber
 
 
 class ProjectAdminForm(forms.ModelForm):
@@ -13,83 +13,128 @@ class ProjectAdminForm(forms.ModelForm):
             "category": "Short label such as Web App, Mobile App, or Brand Identity.",
             "description": "Write a short project summary for the portfolio cards.",
             "image": "Upload a project screenshot or cover image.",
-            "link": "Optional live project or case-study URL.",
-            "tech_stack": "Enter technologies separated by commas, such as React, Django, PostgreSQL.",
-            "is_pinned": "Pinned projects appear in the featured-work slider on the homepage.",
+            "image_url": "Optional direct URL if not using uploaded image.",
+            "tech_stack": "Enter technologies as a JSON array, e.g. [\"React\", \"Django\"]",
+            "live_url": "Optional live project URL.",
+            "github_url": "Optional GitHub repository URL.",
+            "pinned": "Pinned projects appear first on the portfolio list.",
+            "order": "Lower numbers appear first among non-pinned projects.",
         }
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-	form = ProjectAdminForm
-	list_display = ("title", "category", "is_pinned", "updated_at")
-	list_filter = ("is_pinned", "category", "created_at")
-	search_fields = ("title", "category", "description")
-	list_editable = ("is_pinned",)
-	readonly_fields = ("created_at", "updated_at")
-	fieldsets = (
-		("Project details", {
-			"fields": ("title", "category", "description", "link"),
-		}),
-		("Media and stack", {
-			"fields": ("image", "tech_stack"),
-		}),
-		("Homepage display", {
-			"fields": ("is_pinned",),
-		}),
-		("Audit fields", {
-			"fields": ("created_at", "updated_at"),
-		}),
-	)
-	search_fields = ("title", "category", "description")
+    form = ProjectAdminForm
+    list_display = ("title", "category", "pinned", "order", "created_at")
+    list_filter = ("pinned", "category", "created_at")
+    search_fields = ("title", "category", "description")
+    list_editable = ("pinned", "order")
+    readonly_fields = ("created_at",)
+    fieldsets = (
+        ("Project details", {
+            "fields": ("title", "category", "description"),
+        }),
+        ("Media & links", {
+            "fields": ("image", "image_url", "live_url", "github_url"),
+        }),
+        ("Stack & display", {
+            "fields": ("tech_stack", "pinned", "order"),
+        }),
+        ("Audit", {
+            "fields": ("created_at",),
+        }),
+    )
 
 
-class HomeContentAdminForm(forms.ModelForm):
-	class Meta:
-		model = HomeContent
-		fields = "__all__"
-		widgets = {
-			"why_description": forms.Textarea(attrs={"rows": 3}),
-			"why_points": forms.Textarea(attrs={"rows": 5}),
-			"why_panel_description": forms.Textarea(attrs={"rows": 3}),
-			"client_success_description": forms.Textarea(attrs={"rows": 3}),
-		}
-		help_texts = {
-			"why_points": "Enter one benefit per line. These are the bullets shown in the 'Why partner with' section.",
-			"why_panel_description": "This text explains the creative panel on the right side.",
-			"client_success_description": "This controls the section intro shown above testimonials.",
-		}
+@admin.register(SiteContent)
+class SiteContentAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ("Hero Section", {
+            "fields": ("hero_badge", "hero_heading", "hero_subtitle", "hero_cta_primary", "hero_cta_secondary"),
+        }),
+        ("Trusted By", {
+            "fields": ("trusted_by_logos",),
+        }),
+        ("Why Partner", {
+            "fields": ("why_title", "why_description", "why_checklist"),
+        }),
+        ("Stats", {
+            "fields": ("stat_projects", "stat_clients", "stat_team", "stat_experience"),
+        }),
+        ("About", {
+            "fields": ("about_mission", "about_vision"),
+        }),
+        ("CTA", {
+            "fields": ("cta_heading", "cta_subtitle", "cta_button_text"),
+        }),
+        ("Contact", {
+            "fields": ("contact_email", "contact_phone", "contact_address"),
+        }),
+        ("Footer", {
+            "fields": ("footer_tagline",),
+        }),
+    )
 
+    def has_add_permission(self, request):
+        return False if SiteContent.objects.exists() else True
 
-@admin.register(HomeContent)
-class HomeContentAdmin(admin.ModelAdmin):
-	form = HomeContentAdminForm
-	list_display = ("why_title", "client_success_title")
-	fieldsets = (
-		("Why partner with", {
-			"fields": ("why_title", "why_description", "why_points"),
-		}),
-		("Right panel", {
-			"fields": ("why_panel_title", "why_panel_description"),
-		}),
-		("Client Success", {
-			"fields": ("client_success_title", "client_success_description"),
-		}),
-	)
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
-	list_display = ("name", "role", "order", "is_active")
-	list_editable = ("order", "is_active")
-	list_filter = ("is_active", "role")
-	search_fields = ("name", "role", "bio")
-	ordering = ("order", "name")
-	fieldsets = (
-		("Profile", {
-			"fields": ("name", "role", "bio", "image"),
-		}),
-		("Display", {
-			"fields": ("order", "is_active"),
-		}),
-	)
+    list_display = ("name", "role", "order", "is_active")
+    list_editable = ("order", "is_active")
+    list_filter = ("is_active", "role")
+    search_fields = ("name", "role", "bio")
+    ordering = ("order", "name")
+    fieldsets = (
+        ("Profile", {
+            "fields": ("name", "role", "bio", "image", "image_url"),
+        }),
+        ("Social", {
+            "fields": ("linkedin_url", "github_url", "twitter_url"),
+        }),
+        ("Display", {
+            "fields": ("order", "is_active"),
+        }),
+    )
+
+
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ("title", "icon", "order", "is_active")
+    list_editable = ("order", "is_active")
+    search_fields = ("title", "description")
+
+
+@admin.register(Testimonial)
+class TestimonialAdmin(admin.ModelAdmin):
+    list_display = ("name", "role", "company", "order", "is_active")
+    list_editable = ("order", "is_active")
+    search_fields = ("name", "company", "quote")
+
+
+@admin.register(Job)
+class JobAdmin(admin.ModelAdmin):
+    list_display = ("title", "department", "location", "job_type", "is_open", "created_at")
+    list_filter = ("is_open", "job_type", "department")
+    search_fields = ("title", "department", "description")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ("name", "email", "subject", "is_read", "created_at")
+    list_filter = ("is_read", "created_at")
+    search_fields = ("name", "email", "subject", "message")
+    readonly_fields = ("name", "email", "subject", "message", "created_at")
+
+
+@admin.register(NewsletterSubscriber)
+class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    list_display = ("email", "is_active", "subscribed_at")
+    list_filter = ("is_active", "subscribed_at")
+    search_fields = ("email",)
+    readonly_fields = ("subscribed_at",)

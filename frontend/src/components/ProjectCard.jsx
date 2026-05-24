@@ -1,8 +1,13 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Code2 } from 'lucide-react';
+import { GithubIcon } from './BrandIcons';
 
-export default function ProjectCard({ title, category, description, image, techStack, link, isPinned = false, delay = 0 }) {
+export default function ProjectCard({ title, category, description, image, image_url, techStack, tech_stack, link, live_url, github_url, pinned = false, isPinned = false, delay = 0 }) {
+  const displayImage = image || image_url;
+  const displayTechStack = techStack || tech_stack || [];
+  const displayLink = link || live_url || '#';
+  const displayIsPinned = pinned || isPinned;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -12,15 +17,14 @@ export default function ProjectCard({ title, category, description, image, techS
       className="glass-panel group overflow-hidden flex flex-col h-full"
     >
       <div className="relative h-64 overflow-hidden">
-        {isPinned ? (
+        {displayIsPinned ? (
           <div className="absolute left-4 top-4 z-10 rounded-full bg-brand-blue text-black px-3 py-1 text-xs font-semibold uppercase tracking-widest">
             Pinned
           </div>
         ) : null}
-        {/* Placeholder image using gradient if no image is provided */}
-        {image ? (
+        {displayImage ? (
           <img 
-            src={image} 
+            src={displayImage} 
             alt={title} 
             loading="lazy"
             decoding="async"
@@ -32,19 +36,31 @@ export default function ProjectCard({ title, category, description, image, techS
           </div>
         )}
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4">
-          {link ? (
+          {displayLink && displayLink !== '#' && (
             <a
-              href={link}
+              href={displayLink}
               target="_blank"
               rel="noreferrer"
               className="p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm text-white transition-colors"
             >
               <ExternalLink className="h-5 w-5" />
             </a>
-          ) : null}
-          <button className="p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm text-white transition-colors">
-            <Code2 className="h-5 w-5" />
-          </button>
+          )}
+          {github_url && (
+            <a
+              href={github_url}
+              target="_blank"
+              rel="noreferrer"
+              className="p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm text-white transition-colors"
+            >
+              <GithubIcon className="h-5 w-5" />
+            </a>
+          )}
+          {!displayLink && !github_url && (
+            <button className="p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm text-white transition-colors">
+              <Code2 className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </div>
       
@@ -53,16 +69,18 @@ export default function ProjectCard({ title, category, description, image, techS
         <h3 className="text-xl font-bold mb-3 text-white">{title}</h3>
         <p className="text-gray-400 text-sm mb-6 flex-grow">{description}</p>
         
-        <div className="flex flex-wrap gap-2 mt-auto">
-          {techStack.map((tech) => (
-            <span 
-              key={tech} 
-              className="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-gray-300"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
+        {displayTechStack.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-auto">
+            {displayTechStack.map((tech) => (
+              <span 
+                key={tech} 
+                className="px-3 py-1 text-xs rounded-full bg-white/5 border border-white/10 text-gray-300"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );

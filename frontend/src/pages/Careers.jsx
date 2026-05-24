@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, ArrowRight, MapPin, Clock, Loader2, ExternalLink } from 'lucide-react';
+import { MapPin, Clock, Loader2, Building2 } from 'lucide-react';
 import CTASection from '../components/CTASection';
 import { fetchJobs } from '../services/api';
 
@@ -60,6 +60,12 @@ export default function Careers() {
                   <div className="flex-1">
                     <h3 className="text-2xl font-bold text-white mb-2">{job.title}</h3>
                     <div className="flex flex-wrap gap-4 text-gray-400 mb-4">
+                      {job.department && (
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-brand-blue" />
+                          <span>{job.department}</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-brand-blue" />
                         <span>{job.location}</span>
@@ -68,39 +74,21 @@ export default function Careers() {
                         <Clock className="h-4 w-4 text-brand-blue" />
                         <span>{job.job_type}</span>
                       </div>
-                      {job.salary_range && (
-                        <div className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4 text-brand-blue" />
-                          <span>{job.salary_range}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
 
                 <p className="text-gray-300 mb-4">{job.description}</p>
 
-                {job.requirements && (
+                {job.requirements && job.requirements.length > 0 && (
                   <div className="mb-6">
                     <h4 className="text-white font-semibold mb-2">Requirements:</h4>
                     <ul className="text-gray-400 space-y-1 ml-4">
-                      {job.requirements.split('\n').map((req, idx) => (
-                        req.trim() && <li key={idx}>• {req.trim()}</li>
+                      {job.requirements.map((req, idx) => (
+                        <li key={idx}>• {req}</li>
                       ))}
                     </ul>
                   </div>
-                )}
-
-                {job.form_link && (
-                  <a
-                    href={job.form_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-gradient-brand py-3 px-6 rounded-lg text-white font-medium hover:opacity-90 transition-opacity"
-                  >
-                    Apply Now
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
                 )}
               </motion.div>
             ))}

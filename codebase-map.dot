@@ -1,0 +1,247 @@
+digraph "PrimeLogicTech Architecture" {
+    rankdir="LR"
+    splines="true"
+    overlap="false"
+    nodesep="0.18"
+    ranksep="0.22"
+    fontname="Helvetica-bold"
+    fontsize="10"
+    style="rounded,bold,filled"
+    fillcolor="#f8f9fa"
+    compound="true"
+    label="Prime Logic Tech — Full-Stack Architecture"
+    labelloc="t"
+
+    node [shape="box" style="rounded, filled" height="0.25" color="#333333" fontcolor="#111111" fontname="Helvetica" fontsize="9"]
+    edge [arrowhead="normal" arrowsize="0.6" penwidth="1.8" color="#666666aa" fontname="Helvetica" fontsize="8"]
+
+    // ─────────────────────────────────────────────────────────────
+    // FRONTEND (Vercel)
+    // ─────────────────────────────────────────────────────────────
+    subgraph "cluster_frontend" {
+        label="Frontend (Vercel — React + Vite)"
+        style="rounded,dashed"
+        fillcolor="#e8f4fd"
+        fontcolor="#0369a1"
+        color="#7dd3fc"
+
+        subgraph "cluster_fe_pages" {
+            label="Pages (react-router-dom v7)"
+            style="rounded"
+            fillcolor="#ffffff"
+            color="#93c5fd"
+
+            "frontend/src/pages/Home.jsx"      [label=<Home> fillcolor="#dbeafe"]
+            "frontend/src/pages/About.jsx"     [label=<About> fillcolor="#dbeafe"]
+            "frontend/src/pages/Services.jsx"  [label=<Services> fillcolor="#dbeafe"]
+            "frontend/src/pages/Portfolio.jsx" [label=<Portfolio> fillcolor="#dbeafe"]
+            "frontend/src/pages/Careers.jsx"   [label=<Careers> fillcolor="#dbeafe"]
+            "frontend/src/pages/Contact.jsx"   [label=<Contact> fillcolor="#dbeafe"]
+
+            subgraph "cluster_fe_admin" {
+                label="Admin Panels (Protected)"
+                style="rounded"
+                fillcolor="#fef2f2"
+                color="#fca5a5"
+
+                "frontend/src/pages/admin/AdminLogin.jsx"       [label="Login" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminDashboard.jsx"   [label="Dashboard" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminProjects.jsx"    [label="Projects" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminTeam.jsx"        [label="Team" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminServices.jsx"    [label="Services" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminTestimonials.jsx" [label="Testimonials" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminJobs.jsx"        [label="Jobs" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminContacts.jsx"    [label="Contacts" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminNewsletter.jsx"  [label="Newsletter" fillcolor="#fee2e2"]
+                "frontend/src/pages/admin/AdminSiteContent.jsx" [label="Site Content" fillcolor="#fee2e2"]
+            }
+        }
+
+        subgraph "cluster_fe_components" {
+            label="Shared Components"
+            style="rounded"
+            fillcolor="#ffffff"
+            color="#c4b5fd"
+
+            "frontend/src/components/Navbar.jsx"         [label=<Navbar> fillcolor="#ede9fe"]
+            "frontend/src/components/Footer.jsx"         [label=<Footer> fillcolor="#ede9fe"]
+            "frontend/src/components/ProjectCard.jsx"    [label=<ProjectCard> fillcolor="#ede9fe"]
+            "frontend/src/components/ServiceCard.jsx"    [label=<ServiceCard> fillcolor="#ede9fe"]
+            "frontend/src/components/TeamCard.jsx"       [label=<TeamCard> fillcolor="#ede9fe"]
+            "frontend/src/components/TestimonialCard.jsx" [label=<TestimonialCard> fillcolor="#ede9fe"]
+            "frontend/src/components/CTASection.jsx"     [label=<CTASection> fillcolor="#ede9fe"]
+            "frontend/src/components/BrandLogo.jsx"      [label=<BrandLogo> fillcolor="#ede9fe"]
+            "frontend/src/components/ProtectedRoute.jsx" [label=<ProtectedRoute> fillcolor="#ede9fe"]
+        }
+
+        subgraph "cluster_fe_core" {
+            label="Core"
+            style="rounded"
+            fillcolor="#ffffff"
+            color="#86efac"
+
+            "frontend/src/App.jsx"              [label=<App.jsx (Router)> fillcolor="#dcfce7"]
+            "frontend/src/main.jsx"             [label=<main.jsx (Entry)> fillcolor="#dcfce7"]
+            "frontend/src/context/AuthContext.jsx" [label=<AuthContext> fillcolor="#dcfce7"]
+            "frontend/src/services/api.js"      [label=<api.js (Axios)> fillcolor="#dcfce7"]
+            "frontend/src/config/company.js"    [label=<company.js> fillcolor="#dcfce7"]
+            "frontend/src/data/mock.js"         [label=<mock.js> fillcolor="#dcfce7"]
+            "frontend/src/utils/cn.js"          [label=<cn.js (clsx+tw)> fillcolor="#dcfce7"]
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // BACKEND (Render)
+    // ─────────────────────────────────────────────────────────────
+    subgraph "cluster_backend" {
+        label="Backend (Render — Django REST Framework)"
+        style="rounded,dashed"
+        fillcolor="#fefce8"
+        fontcolor="#854d0e"
+        color="#fde68a"
+
+        subgraph "cluster_bk_config" {
+            label="Django Config"
+            style="rounded"
+            fillcolor="#ffffff"
+            color="#fcd34d"
+
+            "backend/config/settings.py" [label=<settings.py> fillcolor="#fef3c7"]
+            "backend/config/urls.py"     [label=<urls.py> fillcolor="#fef3c7"]
+            "backend/config/wsgi.py"     [label=<wsgi.py> fillcolor="#fef3c7"]
+            "backend/config/asgi.py"     [label=<asgi.py> fillcolor="#fef3c7"]
+        }
+
+        subgraph "cluster_bk_core" {
+            label="Core App"
+            style="rounded"
+            fillcolor="#ffffff"
+            color="#a7f3d0"
+
+            "backend/core/models.py"     [label=<models.py (7 models)> fillcolor="#d1fae5"]
+            "backend/core/views.py"      [label=<views.py (17 views)> fillcolor="#d1fae5"]
+            "backend/core/serializers.py" [label=<serializers.py> fillcolor="#d1fae5"]
+            "backend/core/urls.py"       [label=<urls.py> fillcolor="#d1fae5"]
+            "backend/core/admin.py"      [label=<admin.py> fillcolor="#d1fae5"]
+        }
+
+        subgraph "cluster_bk_auth" {
+            label="Auth"
+            style="rounded"
+            fillcolor="#ffffff"
+            color="#fca5a5"
+
+            "JWT Auth" [label="SimpleJWT (access+refresh)" fillcolor="#fee2e2" shape="note"]
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // EXTERNAL SERVICES
+    // ─────────────────────────────────────────────────────────────
+    subgraph "cluster_external" {
+        label="External Services"
+        style="rounded,dashed"
+        fillcolor="#f5f3ff"
+        fontcolor="#5b21b6"
+        color="#c4b5fd"
+
+        "postgresql"    [label="PostgreSQL (Render)" fillcolor="#e0e7ff" shape="cylinder"]
+        "cloudinary"    [label="Cloudinary (Media)" fillcolor="#e0e7ff" shape="box3d"]
+        "gmail_smtp"    [label="Gmail SMTP" fillcolor="#e0e7ff" shape="box3d"]
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // EDGES: App.jsx → Pages
+    // ─────────────────────────────────────────────────────────────
+    "frontend/src/App.jsx" -> "frontend/src/pages/Home.jsx"         [label="route /"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/About.jsx"        [label="route /about"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/Services.jsx"     [label="route /services"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/Portfolio.jsx"    [label="route /portfolio"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/Careers.jsx"      [label="route /careers"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/Contact.jsx"      [label="route /contact"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminLogin.jsx" [label="route /secret-admin"]
+
+    // App.jsx → Admin Pages (protected)
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminDashboard.jsx"   [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminProjects.jsx"    [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminTeam.jsx"        [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminServices.jsx"    [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminTestimonials.jsx" [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminJobs.jsx"        [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminContacts.jsx"    [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminNewsletter.jsx"  [label="protected"]
+    "frontend/src/App.jsx" -> "frontend/src/pages/admin/AdminSiteContent.jsx" [label="protected"]
+
+    // App.jsx → Context, Layouts, Components
+    "frontend/src/App.jsx" -> "frontend/src/context/AuthContext.jsx"
+    "frontend/src/App.jsx" -> "frontend/src/components/ProtectedRoute.jsx"
+    "frontend/src/App.jsx" -> "frontend/src/components/ProtectedRoute.jsx" -> "frontend/src/context/AuthContext.jsx" [style="dashed"]
+
+    // Pages → Components
+    "frontend/src/pages/Home.jsx"      -> "frontend/src/components/Navbar.jsx"         [style="dashed" color="#999999"]
+    "frontend/src/pages/Home.jsx"      -> "frontend/src/components/ServiceCard.jsx"    [style="dashed" color="#999999"]
+    "frontend/src/pages/Home.jsx"      -> "frontend/src/components/ProjectCard.jsx"    [style="dashed" color="#999999"]
+    "frontend/src/pages/Home.jsx"      -> "frontend/src/components/TestimonialCard.jsx" [style="dashed" color="#999999"]
+    "frontend/src/pages/Home.jsx"      -> "frontend/src/components/CTASection.jsx"     [style="dashed" color="#999999"]
+    "frontend/src/pages/Home.jsx"      -> "frontend/src/components/BrandLogo.jsx"      [style="dashed" color="#999999"]
+    "frontend/src/pages/About.jsx"     -> "frontend/src/components/TeamCard.jsx"       [style="dashed" color="#999999"]
+    "frontend/src/pages/About.jsx"     -> "frontend/src/components/CTASection.jsx"     [style="dashed" color="#999999"]
+    "frontend/src/pages/Services.jsx"  -> "frontend/src/components/ServiceCard.jsx"    [style="dashed" color="#999999"]
+    "frontend/src/pages/Services.jsx"  -> "frontend/src/components/CTASection.jsx"     [style="dashed" color="#999999"]
+    "frontend/src/pages/Portfolio.jsx" -> "frontend/src/components/ProjectCard.jsx"    [style="dashed" color="#999999"]
+    "frontend/src/pages/Portfolio.jsx" -> "frontend/src/components/CTASection.jsx"     [style="dashed" color="#999999"]
+    "frontend/src/pages/Careers.jsx"   -> "frontend/src/components/CTASection.jsx"     [style="dashed" color="#999999"]
+    "frontend/src/pages/Contact.jsx"   -> "frontend/src/config/company.js"             [style="dashed" color="#999999"]
+
+    // Pages → api.js
+    "frontend/src/pages/Home.jsx"      -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/About.jsx"     -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/Services.jsx"  -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/Portfolio.jsx" -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/Careers.jsx"   -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/Contact.jsx"   -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+
+    // Admin pages → api.js
+    "frontend/src/pages/admin/AdminDashboard.jsx"   -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminProjects.jsx"    -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminTeam.jsx"        -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminServices.jsx"    -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminTestimonials.jsx" -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminJobs.jsx"        -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminContacts.jsx"    -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminNewsletter.jsx"  -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminSiteContent.jsx" -> "frontend/src/services/api.js" [color="#2563eb" penwidth="2.0"]
+    "frontend/src/pages/admin/AdminLogin.jsx"       -> "frontend/src/context/AuthContext.jsx" [color="#dc2626"]
+
+    // api.js → JWT Auth
+    "frontend/src/services/api.js" -> "JWT Auth" [label="Bearer token" color="#7c3aed" penwidth="2.0"]
+
+    // Backend Internal edges
+    "backend/config/urls.py"      -> "backend/core/views.py"    [label="routes to"]
+    "backend/core/views.py"       -> "backend/core/models.py"   [label="queries"]
+    "backend/core/views.py"       -> "backend/core/serializers.py" [label="serializes"]
+    "backend/core/admin.py"       -> "backend/core/models.py"   [label="registers"]
+    "backend/core/views.py"       -> "JWT Auth"                 [label="authenticates"]
+    "backend/config/settings.py"  -> "cloudinary"               [label="media storage"]
+    "backend/config/settings.py"  -> "gmail_smtp"               [label="email"]
+
+    // Cross-boundary: Frontend API → Backend
+    "frontend/src/services/api.js" -> "backend/config/urls.py" [label="HTTP /api/*" color="#059669" penwidth="2.5" style="bold"]
+
+    // Backend → Database
+    "backend/core/models.py" -> "postgresql" [label="ORM" color="#b45309" penwidth="2.0"]
+
+    // Legend
+    subgraph "cluster_legend" {
+        label="Legend"
+        style="rounded"
+        fillcolor="#ffffff"
+        color="#cccccc"
+        fontsize="8"
+
+        "legend_api" [label="API Call (HTTP)" shape="plaintext" fontcolor="#059669" fontsize="8"]
+        "legend_import" [label="Import / Route" shape="plaintext" fontcolor="#999999" fontsize="8"]
+        "legend_db" [label="Database (ORM)" shape="plaintext" fontcolor="#b45309" fontsize="8"]
+        "legend_auth" [label="Authentication" shape="plaintext" fontcolor="#7c3aed" fontsize="8"]
+    }
+}

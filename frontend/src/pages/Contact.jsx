@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2 } from 'lucide-react';
 import { company } from '../config/company';
+import { submitContact } from '../services/api';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export default function Contact() {
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,31 +22,14 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
-      const payload = new FormData();
-      payload.append('name', formData.name);
-      payload.append('email', formData.email);
-      payload.append('subject', formData.subject);
-      payload.append('message', formData.message);
-      payload.append('access_key', '1c853ee9-9a79-41a4-a1d8-33519810bf98');
-
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        body: payload
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setSuccess(true);
-        setFormData({ name: '', email: '', subject: '', message: '' });
-        setTimeout(() => setSuccess(false), 5000);
-      } else {
-        alert('Error: ' + (data.message || 'Failed to send message. Please try again.'));
-      }
+      await submitContact(formData);
+      setSuccess(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
-      console.error(err);
-      alert('Something went wrong. Please try again.');
+      setError(err.response?.data?.error || 'Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -190,6 +175,10 @@ export default function Contact() {
                     placeholder="Tell us about your project..."
                   />
                 </div>
+
+                {error && (
+                  <p className="text-sm text-red-400 text-center">{error}</p>
+                )}
 
                 <button 
                   type="submit"

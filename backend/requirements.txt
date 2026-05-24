@@ -1,6 +1,25 @@
-Django>=5.0,<6.1
-djangorestframework>=3.15.1
-django-cors-headers>=4.3.1
-gunicorn>=21.2.0
-# Pin to a 6.x WhiteNoise release available on PyPI to avoid resolver errors in hosted builders
-whitenoise==6.12.0
+# ── Core ───────────────────────────────────────────────
+django>=5.0,<5.2
+djangorestframework>=3.15,<3.17
+
+# ── API & Auth ─────────────────────────────────────────
+django-cors-headers>=4.3,<4.6
+djangorestframework-simplejwt>=5.3,<5.6
+
+# ── Production Server ──────────────────────────────────
+gunicorn>=22.0,<24.0
+
+# ── Database ───────────────────────────────────────────
+psycopg2-binary>=2.9,<2.11
+dj-database-url>=2.1,<2.4
+
+# ── Static Files ───────────────────────────────────────
+whitenoise>=6.6,<6.10
+
+# ── Media Storage ──────────────────────────────────────
+cloudinary>=1.39,<1.43
+django-cloudinary-storage>=0.3,<0.5
+Pillow>=10.3,<11.2
+
+# ── Utilities ──────────────────────────────────────────
+python-dotenv>=1.0,<1.2

@@ -15,10 +15,6 @@ services:
     dockerContext: backend
     plan: free
 
-    # Render routes all traffic through nginx → your container
-    # Health check tells Render the service is alive
-    healthCheckPath: /api/site-content/
-
     envVars:
       # ── Django Core ──────────────────────────────
       - key: DEBUG

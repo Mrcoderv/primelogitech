@@ -16,9 +16,18 @@ if ',' in ALLOWED_HOSTS_ENV:
 else:
     ALLOWED_HOSTS = [ALLOWED_HOSTS_ENV]
 
-# NOTE: HealthCheckMiddleware (first in MIDDLEWARE) rewrites the Host
-# header to RENDER_EXTERNAL_HOSTNAME for all requests coming through
-# Render's proxy, so we do NOT need USE_X_FORWARDED_HOST here.
+# Automatically add Render's public hostname (RENDER_EXTERNAL_HOSTNAME is set
+# by Render automatically to e.g. "primelogitech-backend.onrender.com").
+# This ensures the admin panel & API work at ANY Render URL without needing
+# to configure ALLOWED_HOSTS separately for each service.
+_render_host = os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')
+if _render_host and _render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_host)
+
+# NOTE: HealthCheckMiddleware (first in MIDDLEWARE) also rewrites the Host
+# header to RENDER_EXTERNAL_HOSTNAME for requests coming through Render's
+# proxy with internal IPs. Between the middleware rewrite and this setting,
+# the admin panel is now accessible directly at the Render URL.
 
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -62,8 +62,8 @@ services:
       - key: PYTHON_VERSION
         value: '3.12'
 
-  # ── PostgreSQL Database (Free tier: 256 MB) ────────
-  - type: database
-    name: primelogitech-db
+# ── PostgreSQL Database (Free tier: 256 MB) ────────
+databases:
+  - name: primelogitech-db
     plan: free
     region: oregon

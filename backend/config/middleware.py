@@ -33,9 +33,20 @@ class HealthCheckMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Only intercept Render health probes on known health-check paths.
-        if request.path in ("/", "/api/", "/api/site-content/"):
+        # ── Paths that are ONLY used as health-check targets ──────────────
+        # ``/`` and ``/api/`` are never real API endpoints used by the
+        # frontend – they are only hit by Render's internal proxy.  Always
+        # return 200 so that the deploy health check succeeds regardless
+        # of the Host header.
+        if request.path in ("/", "/api/"):
+            return HttpResponse("OK", status=200)
+
+        # ── Real API endpoints that Render also probes ──────────────────
+        # ``/api/site-content/`` IS a legitimate endpoint, so we only
+        # short-circuit when the request comes from Render itself.
+        if request.path == "/api/site-content/":
             user_agent = request.META.get("HTTP_USER_AGENT", "")
             if "Render" in user_agent:
                 return HttpResponse("OK", status=200)
+
         return self.get_response(request)

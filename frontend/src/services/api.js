@@ -280,4 +280,62 @@ export async function fetchAdminNewsletter() {
   return data;
 }
 
+// ─── Admin: Users ────────────────────────────────────────────────────────────
+
+export async function fetchAdminUsers() {
+  const { data } = await api.get('/api/admin/users/');
+  return data;
+}
+
+export async function createAdminUser(payload) {
+  const { data } = await api.post('/api/admin/users/', payload);
+  return data;
+}
+
+export async function updateAdminUser(id, payload) {
+  const { data } = await api.patch(`/api/admin/users/${id}/`, payload);
+  return data;
+}
+
+export async function deleteAdminUser(id) {
+  await api.delete(`/api/admin/users/${id}/`);
+}
+
+export async function resetAdminUserPassword(id, password) {
+  const { data } = await api.post(`/api/admin/users/${id}/reset-password/`, { password });
+  return data;
+}
+
+// ─── Admin: Images ───────────────────────────────────────────────────────────
+
+export async function fetchAdminImages() {
+  const { data } = await api.get('/api/admin/images/');
+  return data;
+}
+
+export async function fetchAdminImagesByType(assetType) {
+  const { data } = await api.get(`/api/admin/images/type/${assetType}/`);
+  return data;
+}
+
+export async function uploadImage(payload) {
+  const form = new FormData();
+  Object.entries(payload).forEach(([key, val]) => {
+    if (val !== null && val !== undefined) form.append(key, val);
+  });
+  const { data } = await api.post('/api/admin/images/', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
+export async function updateAdminImage(id, payload) {
+  const { data } = await api.patch(`/api/admin/images/${id}/`, payload);
+  return data;
+}
+
+export async function deleteAdminImage(id) {
+  await api.delete(`/api/admin/images/${id}/`);
+}
+
 export default api;

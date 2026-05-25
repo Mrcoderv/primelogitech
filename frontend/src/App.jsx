@@ -19,6 +19,9 @@ import AdminServices from './pages/admin/AdminServices';
 import AdminTestimonials from './pages/admin/AdminTestimonials';
 import AdminJobs from './pages/admin/AdminJobs';
 import AdminSiteContent from './pages/admin/AdminSiteContent';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminImages from './pages/admin/AdminImages';
+import AdminSettings from './pages/admin/AdminSettings';
 
 function App() {
   return (
@@ -125,6 +128,36 @@ function App() {
               <ProtectedRoute>
                 <AdminLayout>
                   <AdminSiteContent />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/secret-admin/users"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminUsers />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/secret-admin/images"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminImages />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/secret-admin/settings"
+            element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <AdminSettings />
                 </AdminLayout>
               </ProtectedRoute>
             }

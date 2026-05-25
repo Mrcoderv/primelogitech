@@ -35,4 +35,14 @@ urlpatterns = [
     path('api/admin/contacts/', AdminContactListView.as_view()),
     path('api/admin/contacts/<int:pk>/', AdminContactDetailView.as_view()),
     path('api/admin/newsletter/', AdminNewsletterListView.as_view()),
+    
+    # Admin user management
+    path('api/admin/users/', AdminUserListCreateView.as_view()),
+    path('api/admin/users/<int:pk>/', AdminUserDetailView.as_view()),
+    path('api/admin/users/<int:pk>/reset-password/', AdminUserResetPasswordView.as_view()),
+    
+    # Image asset management
+    path('api/admin/images/', ImageAssetListCreateView.as_view()),
+    path('api/admin/images/<int:pk>/', ImageAssetDetailView.as_view()),
+    path('api/admin/images/type/<str:asset_type>/', ImageAssetByTypeView.as_view()),
 ]

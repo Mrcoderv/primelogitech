@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import (
     SiteContent, Project, TeamMember, Service,
-    Testimonial, Job, ContactMessage, NewsletterSubscriber
+    Testimonial, Job, ContactMessage, NewsletterSubscriber,
+    AdminUser, ImageAsset
 )
 
 class SiteContentSerializer(serializers.ModelSerializer):
@@ -43,3 +44,30 @@ class NewsletterSubscriberSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsletterSubscriber
         fields = '__all__'
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminUser
+        fields = ['id', 'username', 'email', 'role', 'is_active', 'permissions', 'last_login', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'last_login']
+
+
+class AdminUserCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, min_length=8)
+    
+    class Meta:
+        model = AdminUser
+        fields = ['username', 'email', 'password', 'role', 'permissions']
+    
+    def create(self, validated_data):
+        from django.contrib.auth.hashers import make_password
+        validated_data['password_hash'] = make_password(validated_data.pop('password'))
+        return AdminUser.objects.create(**validated_data)
+
+
+class ImageAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageAsset
+        fields = '__all__'
+        read_only_fields = ['id', 'uploaded_at', 'cloudinary_id']

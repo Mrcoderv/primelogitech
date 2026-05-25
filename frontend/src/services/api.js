@@ -124,8 +124,13 @@ export async function updateAdminSiteContent(payload) {
 // ─── Admin: Projects ─────────────────────────────────────────────────────────
 
 export async function fetchAdminProjects() {
-  const { data } = await api.get('/api/admin/projects/');
-  return data;
+  try {
+    const { data } = await api.get('/api/admin/projects/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch projects:', error.message);
+    return [];
+  }
 }
 
 export async function createAdminProject(payload) {
@@ -167,8 +172,73 @@ export async function deleteAdminProject(id) {
 // ─── Admin: Team ─────────────────────────────────────────────────────────────
 
 export async function fetchAdminTeam() {
-  const { data } = await api.get('/api/admin/team/');
-  return data;
+  try {
+    const { data } = await api.get('/api/admin/team/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch team:', error.message);
+    return [];
+  }
+}
+
+// ─── Admin: Services ─────────────────────────────────────────────────────────
+
+export async function fetchAdminServices() {
+  try {
+    const { data } = await api.get('/api/admin/services/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch services:', error.message);
+    return [];
+  }
+}
+
+// ─── Admin: Testimonials ─────────────────────────────────────────────────────
+
+export async function fetchAdminTestimonials() {
+  try {
+    const { data } = await api.get('/api/admin/testimonials/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch testimonials:', error.message);
+    return [];
+  }
+}
+
+// ─── Admin: Jobs ─────────────────────────────────────────────────────────────
+
+export async function fetchAdminJobs() {
+  try {
+    const { data } = await api.get('/api/admin/jobs/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch jobs:', error.message);
+    return [];
+  }
+}
+
+// ─── Admin: Contacts ─────────────────────────────────────────────────────────
+
+export async function fetchAdminContacts() {
+  try {
+    const { data } = await api.get('/api/admin/contacts/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch contacts:', error.message);
+    return [];
+  }
+}
+
+// ─── Admin: Newsletter ───────────────────────────────────────────────────────
+
+export async function fetchAdminNewsletter() {
+  try {
+    const { data } = await api.get('/api/admin/newsletter/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch newsletter:', error.message);
+    return [];
+  }
 }
 
 export async function createAdminTeam(payload) {
@@ -198,13 +268,6 @@ export async function deleteAdminTeam(id) {
   await api.delete(`/api/admin/team/${id}/`);
 }
 
-// ─── Admin: Services ─────────────────────────────────────────────────────────
-
-export async function fetchAdminServices() {
-  const { data } = await api.get('/api/admin/services/');
-  return data;
-}
-
 export async function createAdminService(payload) {
   const { data } = await api.post('/api/admin/services/', payload);
   return data;
@@ -217,13 +280,6 @@ export async function updateAdminService(id, payload) {
 
 export async function deleteAdminService(id) {
   await api.delete(`/api/admin/services/${id}/`);
-}
-
-// ─── Admin: Testimonials ─────────────────────────────────────────────────────
-
-export async function fetchAdminTestimonials() {
-  const { data } = await api.get('/api/admin/testimonials/');
-  return data;
 }
 
 export async function createAdminTestimonial(payload) {
@@ -240,13 +296,6 @@ export async function deleteAdminTestimonial(id) {
   await api.delete(`/api/admin/testimonials/${id}/`);
 }
 
-// ─── Admin: Jobs ─────────────────────────────────────────────────────────────
-
-export async function fetchAdminJobs() {
-  const { data } = await api.get('/api/admin/jobs/');
-  return data;
-}
-
 export async function createAdminJob(payload) {
   const { data } = await api.post('/api/admin/jobs/', payload);
   return data;
@@ -261,30 +310,26 @@ export async function deleteAdminJob(id) {
   await api.delete(`/api/admin/jobs/${id}/`);
 }
 
-// ─── Admin: Contacts ─────────────────────────────────────────────────────────
-
-export async function fetchAdminContacts() {
-  const { data } = await api.get('/api/admin/contacts/');
-  return data;
-}
-
 export async function fetchAdminContact(id) {
-  const { data } = await api.get(`/api/admin/contacts/${id}/`);
-  return data;
-}
-
-// ─── Admin: Newsletter ───────────────────────────────────────────────────────
-
-export async function fetchAdminNewsletter() {
-  const { data } = await api.get('/api/admin/newsletter/');
-  return data;
+  try {
+    const { data } = await api.get(`/api/admin/contacts/${id}/`);
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch contact:', error.message);
+    return null;
+  }
 }
 
 // ─── Admin: Users ────────────────────────────────────────────────────────────
 
 export async function fetchAdminUsers() {
-  const { data } = await api.get('/api/admin/users/');
-  return data;
+  try {
+    const { data } = await api.get('/api/admin/users/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch admin users:', error.message);
+    return [];
+  }
 }
 
 export async function createAdminUser(payload) {
@@ -309,8 +354,13 @@ export async function resetAdminUserPassword(id, password) {
 // ─── Admin: Images ───────────────────────────────────────────────────────────
 
 export async function fetchAdminImages() {
-  const { data } = await api.get('/api/admin/images/');
-  return data;
+  try {
+    const { data } = await api.get('/api/admin/images/');
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to fetch admin images:', error.message);
+    return [];
+  }
 }
 
 export async function fetchAdminImagesByType(assetType) {

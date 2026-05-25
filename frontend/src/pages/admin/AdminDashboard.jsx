@@ -8,6 +8,8 @@ import {
   fetchAdminJobs,
   fetchAdminContacts,
   fetchAdminNewsletter,
+  fetchAdminUsers,
+  fetchAdminImages,
 } from '../../services/api';
 import {
   Briefcase,
@@ -20,7 +22,10 @@ import {
   FileText,
   ArrowRight,
   Loader2,
+  Image,
+  UserCog,
 } from 'lucide-react';
+import StatCard from '../../components/StatCard';
 
 const cards = [
   { label: 'Projects', key: 'projects', icon: Briefcase, color: 'bg-blue-500/10 text-blue-400', path: '/secret-admin/projects' },
@@ -30,6 +35,8 @@ const cards = [
   { label: 'Jobs', key: 'jobs', icon: Megaphone, color: 'bg-pink-500/10 text-pink-400', path: '/secret-admin/jobs' },
   { label: 'Contacts', key: 'contacts', icon: Mail, color: 'bg-orange-500/10 text-orange-400', path: '/secret-admin/contacts' },
   { label: 'Newsletter', key: 'newsletter', icon: Bell, color: 'bg-indigo-500/10 text-indigo-400', path: '/secret-admin/newsletter' },
+  { label: 'Images', key: 'images', icon: Image, color: 'bg-cyan-500/10 text-cyan-400', path: '/secret-admin/images' },
+  { label: 'Admin Users', key: 'adminUsers', icon: UserCog, color: 'bg-red-500/10 text-red-400', path: '/secret-admin/users' },
 ];
 
 export default function AdminDashboard() {
@@ -48,6 +55,8 @@ export default function AdminDashboard() {
           jobs,
           contacts,
           newsletter,
+          adminUsers,
+          images,
         ] = await Promise.all([
           fetchAdminProjects(),
           fetchAdminTeam(),
@@ -56,6 +65,8 @@ export default function AdminDashboard() {
           fetchAdminJobs(),
           fetchAdminContacts(),
           fetchAdminNewsletter(),
+          fetchAdminUsers(),
+          fetchAdminImages(),
         ]);
 
         setCounts({
@@ -66,6 +77,8 @@ export default function AdminDashboard() {
           jobs: jobs.length,
           contacts: contacts.length,
           newsletter: newsletter.length,
+          images: images.length,
+          adminUsers: adminUsers.length,
         });
       } catch {
         setError('Failed to load dashboard data.');

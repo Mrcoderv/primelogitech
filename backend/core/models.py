@@ -173,3 +173,56 @@ class NewsletterSubscriber(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class AdminUser(models.Model):
+    ROLE_CHOICES = [
+        ('admin', 'Admin - Full Access'),
+        ('editor', 'Editor - Content Management'),
+        ('viewer', 'Viewer - Read Only'),
+    ]
+    
+    username       = models.CharField(max_length=150, unique=True)
+    email          = models.EmailField(unique=True)
+    password_hash  = models.CharField(max_length=255)
+    role           = models.CharField(max_length=20, choices=ROLE_CHOICES, default='editor')
+    is_active      = models.BooleanField(default=True)
+    
+    # Permissions (JSON for flexibility)
+    permissions    = models.JSONField(default=dict, blank=True)
+    
+    last_login     = models.DateTimeField(null=True, blank=True)
+    created_at     = models.DateTimeField(auto_now_add=True)
+    updated_at     = models.DateTimeField(auto_now=True)
+    created_by     = models.CharField(max_length=150, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.username} ({self.get_role_display()})"
+
+
+class ImageAsset(models.Model):
+    TYPE_CHOICES = [
+        ('project', 'Project'),
+        ('team', 'Team Member'),
+        ('service', 'Service'),
+        ('other', 'Other'),
+    ]
+    
+    filename       = models.CharField(max_length=255)
+    url            = models.URLField()
+    cloudinary_id  = models.CharField(max_length=255, blank=True)  # Store Cloudinary public_id for deletion
+    size           = models.IntegerField(default=0)  # Size in bytes
+    asset_type     = models.CharField(max_length=20, choices=TYPE_CHOICES, default='other')
+    alt_text       = models.CharField(max_length=200, blank=True)
+    
+    uploaded_at    = models.DateTimeField(auto_now_add=True)
+    uploaded_by    = models.CharField(max_length=150, blank=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return self.filename

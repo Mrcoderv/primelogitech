@@ -15,6 +15,8 @@ import {
   ChevronDown,
   Menu,
   X,
+  Image,
+  UserCog,
 } from 'lucide-react';
 
 const navItems = [
@@ -27,6 +29,9 @@ const navItems = [
   { label: 'Jobs', icon: Megaphone, path: '/secret-admin/jobs' },
   { label: 'Contacts', icon: Mail, path: '/secret-admin/contacts' },
   { label: 'Newsletter', icon: Bell, path: '/secret-admin/newsletter' },
+  { label: 'Images', icon: Image, path: '/secret-admin/images' },
+  { label: 'Admin Users', icon: UserCog, path: '/secret-admin/users' },
+  { label: 'Settings', icon: Settings, path: '/secret-admin/settings' },
 ];
 
 export default function AdminLayout({ children }) {

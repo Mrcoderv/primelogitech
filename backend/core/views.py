@@ -149,3 +149,78 @@ class AdminNewsletterListView(generics.ListAPIView):
     queryset = NewsletterSubscriber.objects.all()
     serializer_class = NewsletterSubscriberSerializer
     permission_classes = [IsAdminUser]
+
+
+# ── ADMIN USER MANAGEMENT ──────────────────────────────────────
+
+class AdminUserListCreateView(generics.ListCreateAPIView):
+    queryset = AdminUser.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminUser]
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AdminUserCreateSerializer
+        return AdminUserSerializer
+
+
+class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AdminUser.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminUser]
+
+
+class AdminUserResetPasswordView(APIView):
+    permission_classes = [IsAdminUser]
+    
+    def post(self, request, pk):
+        try:
+            user = AdminUser.objects.get(pk=pk)
+        except AdminUser.DoesNotExist:
+            return Response({'error': 'User not found'}, status=404)
+        
+        password = request.data.get('password', '').strip()
+        if not password or len(password) < 8:
+            return Response({'error': 'Password must be at least 8 characters'}, status=400)
+        
+        from django.contrib.auth.hashers import make_password
+        user.password_hash = make_password(password)
+        user.save()
+        
+        return Response({'success': True, 'message': 'Password reset successfully'})
+
+
+# ── IMAGE ASSET MANAGEMENT ────────────────────────────────────
+
+class ImageAssetListCreateView(generics.ListCreateAPIView):
+    queryset = ImageAsset.objects.all()
+    serializer_class = ImageAssetSerializer
+    permission_classes = [IsAdminUser]
+    
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user.username if hasattr(self.request.user, 'username') else 'admin')
+
+
+class ImageAssetDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ImageAsset.objects.all()
+    serializer_class = ImageAssetSerializer
+    permission_classes = [IsAdminUser]
+    
+    def perform_destroy(self, instance):
+        # Delete from Cloudinary if public_id exists
+        if instance.cloudinary_id:
+            try:
+                import cloudinary.api
+                cloudinary.api.delete_resources([instance.cloudinary_id])
+            except Exception:
+                pass
+        instance.delete()
+
+
+class ImageAssetByTypeView(generics.ListAPIView):
+    serializer_class = ImageAssetSerializer
+    permission_classes = [IsAdminUser]
+    
+    def get_queryset(self):
+        asset_type = self.kwargs.get('asset_type')
+        return ImageAsset.objects.filter(asset_type=asset_type)

@@ -133,7 +133,15 @@ export default function Footer({ siteContent: propContent }) {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-sm text-gray-400">
                 <MapPin className="h-5 w-5 text-brand-blue shrink-0" />
-                <span>{content.contact_address || 'Kathmandu, Nepal'}</span>
+                <a 
+                  href="https://maps.app.goo.gl/Jjedt1uESwcftLYd7" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-brand-blue transition-colors"
+                  title="Open location in Google Maps"
+                >
+                  Bhaktapur, Thimi, Nepal
+                </a>
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Phone className="h-5 w-5 text-brand-blue shrink-0" />
@@ -141,7 +149,12 @@ export default function Footer({ siteContent: propContent }) {
               </li>
               <li className="flex items-center gap-3 text-sm text-gray-400">
                 <Mail className="h-5 w-5 text-brand-blue shrink-0" />
-                <span>{footerEmail || 'hello@primelogitech.com'}</span>
+                <a 
+                  href="mailto:primelogictech3@gmail.com"
+                  className="hover:text-brand-blue transition-colors"
+                >
+                  primelogictech3@gmail.com
+                </a>
               </li>
             </ul>
           </div>

@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view()),
 
     # Public
+    path('api/health/', HealthCheckView.as_view()),
     path('api/site-content/', SiteContentView.as_view()),
     path('api/projects/', ProjectListView.as_view()),
     path('api/team/', TeamListView.as_view()),

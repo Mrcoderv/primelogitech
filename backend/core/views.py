@@ -120,6 +120,12 @@ class NewsletterSubscribeView(APIView):
             sub.save()
         return Response({'success': True}, status=201)
 
+class HealthCheckView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({'ok': True}, status=200)
+
 # ── ADMIN ONLY ────────────────────────────────────────────────
 
 class AdminSiteContentView(APIView):

@@ -2,6 +2,9 @@
 
 Complete guide to using the Prime Logic Tech Admin Panel.
 
+> **Update:** The legacy React admin (`/secret-admin`) has been removed.
+> Use Django admin only: `https://primelogitech-backend.onrender.com/admin/`
+
 ## Table of Contents
 
 1. [Getting Started](#getting-started)

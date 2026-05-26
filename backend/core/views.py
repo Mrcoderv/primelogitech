@@ -3,12 +3,11 @@ from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.mail import send_mail
-from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from .models import *
 from .serializers import *
 from .permissions import CanManageAdminUsers  # <-- Added import
+from .email_utils import send_smtp_email
 
 # ── AUTHENTICATION ────────────────────────────────────────────
 
@@ -92,17 +91,23 @@ class JobListView(generics.ListAPIView):
 class ContactCreateView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
-        s = ContactMessageSerializer(data=request.data)
+        s = ContactMessageCreateSerializer(data=request.data)
         if s.is_valid():
-            msg = s.save()
+            assigned_user = (
+                AdminUser.objects
+                .filter(is_active=True, email_notifications_enabled=True)
+                .exclude(email="")
+                .order_by("created_at")
+                .first()
+            )
+            msg = s.save(assigned_user=assigned_user)
             try:
-                send_mail(
+                if assigned_user:
+                    send_smtp_email(
                     subject=f"[PLT Contact] {msg.subject}",
                     message=f"From: {msg.name} <{msg.email}>\n\n{msg.message}",
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[settings.ADMIN_EMAIL],
-                    fail_silently=True,
-                )
+                    recipient_list=[assigned_user.email],
+                    )
             except Exception:
                 pass
             return Response({'success': True}, status=201)

@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import (
     SiteContent, Project, TeamMember, Service,
     Testimonial, Job, ContactMessage, NewsletterSubscriber,
-    AdminUser, ImageAsset
+    AdminUser, ImageAsset, SMTPSetting
 )
 
 
@@ -72,6 +72,19 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         return value
 
 
+class ContactMessageCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['name', 'email', 'subject', 'message']
+
+    def validate_email(self, value):
+        try:
+            validate_email(value)
+        except DjangoValidationError:
+            raise serializers.ValidationError("Enter a valid email address.")
+        return value
+
+
 class NewsletterSubscriberSerializer(serializers.ModelSerializer):
     class Meta:
         model = NewsletterSubscriber
@@ -83,7 +96,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdminUser
-        fields = ['id', 'username', 'email', 'role', 'role_display', 'is_active', 'permissions', 'last_login', 'created_at', 'updated_at', 'created_by']
+        fields = ['id', 'username', 'email', 'email_notifications_enabled', 'role', 'role_display', 'is_active', 'permissions', 'last_login', 'created_at', 'updated_at', 'created_by']
         read_only_fields = ['id', 'created_at', 'updated_at', 'last_login', 'role_display']
 
 
@@ -93,7 +106,7 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdminUser
-        fields = ['username', 'email', 'password', 'confirm_password', 'role', 'permissions', 'is_active']
+        fields = ['username', 'email', 'email_notifications_enabled', 'password', 'confirm_password', 'role', 'permissions', 'is_active']
 
     def validate_username(self, value):
         """Validate username format and uniqueness."""
@@ -145,7 +158,7 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AdminUser
-        fields = ['email', 'role', 'is_active', 'permissions']
+        fields = ['email', 'email_notifications_enabled', 'role', 'is_active', 'permissions']
 
     def validate_email(self, value):
         """Validate email format and uniqueness."""
@@ -181,3 +194,9 @@ class ImageAssetSerializer(serializers.ModelSerializer):
         model = ImageAsset
         fields = '__all__'
         read_only_fields = ['id', 'uploaded_at', 'cloudinary_id']
+
+
+class SMTPSettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SMTPSetting
+        fields = '__all__'

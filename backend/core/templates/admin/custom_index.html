@@ -1,0 +1,91 @@
+{% extends "admin/index.html" %}
+{% load admin_dashboard %}
+
+{% block content %}
+  {{ block.super }}
+
+  {% recent_contact_messages 5 as latest_messages %}
+  {% newsletter_dashboard_stats as newsletter_stats %}
+
+  <div class="dashboard-panels">
+    <section class="dashboard-panel">
+      <div class="dashboard-panel__header">
+        <h2>Latest Contact Messages</h2>
+        <a href="{% url 'admin:core_contactmessage_changelist' %}">View all</a>
+      </div>
+      <div class="dashboard-table-wrapper">
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Subject</th>
+              <th>Seen</th>
+              <th>Done</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for message in latest_messages %}
+              <tr>
+                <td>{{ message.name }}</td>
+                <td>{{ message.email }}</td>
+                <td>{{ message.subject }}</td>
+                <td>
+                  <span class="status-badge {% if message.is_read %}status-badge--positive{% else %}status-badge--neutral{% endif %}">
+                    {% if message.is_read %}✓ Seen{% else %}✗ Unseen{% endif %}
+                  </span>
+                  <form method="post" action="{% url 'admin:core_contactmessage_quick_update' message.pk %}" class="quick-action-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="field" value="is_read">
+                    <input type="hidden" name="value" value="{% if message.is_read %}0{% else %}1{% endif %}">
+                    <input type="hidden" name="next" value="{% url 'admin:index' %}">
+                    <button type="submit">
+                      Mark {% if message.is_read %}unseen{% else %}seen{% endif %}
+                    </button>
+                  </form>
+                </td>
+                <td>
+                  <span class="status-badge {% if message.action_done %}status-badge--positive{% else %}status-badge--neutral{% endif %}">
+                    {% if message.action_done %}✓ Done{% else %}✗ Not done{% endif %}
+                  </span>
+                  <form method="post" action="{% url 'admin:core_contactmessage_quick_update' message.pk %}" class="quick-action-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="field" value="action_done">
+                    <input type="hidden" name="value" value="{% if message.action_done %}0{% else %}1{% endif %}">
+                    <input type="hidden" name="next" value="{% url 'admin:index' %}">
+                    <button type="submit">
+                      Mark {% if message.action_done %}not done{% else %}done{% endif %}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5">No messages yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="dashboard-panel dashboard-panel--stats">
+      <h2>Newsletter Snapshot</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card__value">{{ newsletter_stats.total }}</div>
+          <div class="stat-card__label">Total subscribers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">{{ newsletter_stats.active }}</div>
+          <div class="stat-card__label">Active subscribers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">{{ newsletter_stats.today }}</div>
+          <div class="stat-card__label">Today&apos;s new</div>
+        </div>
+      </div>
+      <a class="button" href="{% url 'admin:core_newslettersubscriber_changelist' %}">Manage newsletter subscribers</a>
+    </section>
+  </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}PrimeLogitech Admin{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <div class="custom-admin-branding">
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">PrimeLogitech Admin</a></h1>
+    <p class="custom-admin-subtitle">Manage projects, contacts, and subscribers in one place.</p>
+  </div>
+{% endblock %}

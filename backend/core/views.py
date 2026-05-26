@@ -226,41 +226,82 @@ class AdminNewsletterListView(generics.ListAPIView):
 
 # ── ADMIN USER MANAGEMENT ──────────────────────────────────────
 
+from .serializers import AdminUserCreateSerializer, AdminUserUpdateSerializer, PasswordResetSerializer
+
 class AdminUserListCreateView(generics.ListCreateAPIView):
     queryset = AdminUser.objects.all()
     serializer_class = AdminUserSerializer
-    permission_classes = [IsAdminUser]
-    
+    permission_classes = [CanManageAdminUsers]
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return AdminUserCreateSerializer
         return AdminUserSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user.username)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            {
+                'success': True,
+                'message': f"User '{serializer.instance.username}' created successfully",
+                'data': AdminUserSerializer(serializer.instance).data
+            },
+            status=status.HTTP_201_CREATED,
+            headers=headers
+        )
+
 
 class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = AdminUser.objects.all()
     serializer_class = AdminUserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [CanManageAdminUsers]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return AdminUserUpdateSerializer
+        return AdminUserSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        username = instance.username
+        if instance.id == request.user.id:
+            return Response(
+                {'error': 'Cannot delete your own account'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        self.perform_destroy(instance)
+        return Response(
+            {'success': True, 'message': f"User '{username}' deleted successfully"},
+            status=status.HTTP_200_OK
+        )
 
 
 class AdminUserResetPasswordView(APIView):
-    permission_classes = [IsAdminUser]
-    
+    permission_classes = [CanManageAdminUsers]
+
     def post(self, request, pk):
         try:
             user = AdminUser.objects.get(pk=pk)
         except AdminUser.DoesNotExist:
-            return Response({'error': 'User not found'}, status=404)
-        
-        password = request.data.get('password', '').strip()
-        if not password or len(password) < 8:
-            return Response({'error': 'Password must be at least 8 characters'}, status=400)
-        
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PasswordResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         from django.contrib.auth.hashers import make_password
-        user.password_hash = make_password(password)
+        user.password_hash = make_password(serializer.validated_data['password'])
         user.save()
-        
-        return Response({'success': True, 'message': 'Password reset successfully'})
+
+        return Response({
+            'success': True,
+            'message': f"Password reset successfully for user '{user.username}'"
+        })
 
 
 # ── IMAGE ASSET MANAGEMENT ────────────────────────────────────

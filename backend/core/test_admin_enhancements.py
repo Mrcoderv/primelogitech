@@ -4,7 +4,7 @@ from django.test import override_settings
 from django.urls import reverse
 from unittest.mock import patch
 
-from core.models import ContactMessage, NewsletterSubscriber, SMTPSetting
+from core.models import AdminUser, ContactMessage, NewsletterSubscriber, SMTPSetting
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
@@ -92,3 +92,22 @@ class AdminEnhancementsTestCase(TestCase):
         post_response = self.client.post(action_url, {"recipient": "qa@example.com"})
         self.assertEqual(post_response.status_code, 302)
         mock_send_smtp_email.assert_called_once()
+
+    def test_adminuser_creation_syncs_django_staff_login_user(self):
+        password = "StrongPass123!"
+        AdminUser.objects.create(
+            username="synced_admin",
+            email="synced_admin@example.com",
+            password_hash=password,
+            role="admin",
+            is_active=True,
+        )
+
+        synced_user = get_user_model().objects.get(username="synced_admin")
+        self.assertTrue(synced_user.is_staff)
+        self.assertTrue(synced_user.is_superuser)
+        self.assertTrue(synced_user.check_password(password))
+
+        self.client.logout()
+        credentials = {"username": "synced_admin", "password": password}
+        self.assertTrue(self.client.login(**credentials))

@@ -2,8 +2,9 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
+from unittest.mock import patch
 
-from core.models import ContactMessage, NewsletterSubscriber
+from core.models import ContactMessage, NewsletterSubscriber, SMTPSetting
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
@@ -78,3 +79,16 @@ class AdminEnhancementsTestCase(TestCase):
         self.assertIn("active1@example.com", emails)
         self.assertIn("active2@example.com", emails)
         self.assertNotIn("inactive@example.com", emails)
+
+    @patch("core.admin.send_smtp_email")
+    def test_smtp_settings_changelist_and_test_email_action(self, mock_send_smtp_email):
+        SMTPSetting.ensure_defaults()
+        changelist_url = reverse("admin:core_smtpsetting_changelist")
+        response = self.client.get(changelist_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test Email")
+
+        action_url = reverse("admin:core_smtpsetting_test_email")
+        post_response = self.client.post(action_url, {"recipient": "qa@example.com"})
+        self.assertEqual(post_response.status_code, 302)
+        mock_send_smtp_email.assert_called_once()

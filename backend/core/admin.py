@@ -7,8 +7,10 @@ from django.urls import path, reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
-from .models import SiteContent, Project, TeamMember, Service, Testimonial, Job, ContactMessage, NewsletterSubscriber
+from .models import SiteContent, Project, TeamMember, Service, Testimonial, Job, ContactMessage, NewsletterSubscriber, AdminUser, SMTPSetting
+from .email_utils import send_smtp_email
 
 admin.site.site_header = "PrimeLogictech Admin"
 admin.site.site_title = "PrimeLogictech Admin"
@@ -138,7 +140,7 @@ class JobAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "subject", "is_read", "action_done", "created_at")
+    list_display = ("name", "email", "subject", "assigned_user", "is_read", "action_done", "created_at")
     list_filter = ("is_read", "action_done", "created_at")
     search_fields = ("name", "email", "subject", "message")
     readonly_fields = ("name", "email", "subject", "message", "created_at")
@@ -240,3 +242,76 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     def active_emails_view(self, request):
         emails = NewsletterSubscriber.objects.filter(is_active=True).values_list("email", flat=True)
         return JsonResponse({"emails": ",".join(emails)})
+
+
+@admin.register(AdminUser)
+class AdminUserAdmin(admin.ModelAdmin):
+    list_display = ("username", "email", "email_notifications_enabled", "role", "is_active", "created_at")
+    list_filter = ("role", "is_active", "email_notifications_enabled")
+    search_fields = ("username", "email")
+    readonly_fields = ("created_at", "updated_at", "last_login")
+    fieldsets = (
+        ("Account", {
+            "fields": ("username", "email", "password_hash", "role", "is_active"),
+        }),
+        ("Email Notifications", {
+            "fields": ("email_notifications_enabled",),
+        }),
+        ("Access", {
+            "fields": ("permissions",),
+        }),
+        ("Audit", {
+            "fields": ("created_by", "last_login", "created_at", "updated_at"),
+        }),
+    )
+
+
+@admin.register(SMTPSetting)
+class SMTPSettingAdmin(admin.ModelAdmin):
+    list_display = ("key", "masked_value", "updated_at")
+    readonly_fields = ("updated_at",)
+    change_list_template = "admin/core/smtpsetting/change_list.html"
+
+    def get_queryset(self, request):
+        SMTPSetting.ensure_defaults()
+        return super().get_queryset(request)
+
+    def masked_value(self, obj):
+        if obj.key == "SMTP_PASS" and obj.value:
+            return "••••••••"
+        return obj.value
+    masked_value.short_description = "Value"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "test-email/",
+                self.admin_site.admin_view(self.test_email_view),
+                name="core_smtpsetting_test_email",
+            ),
+        ]
+        return custom_urls + urls
+
+    def test_email_view(self, request):
+        if request.method != "POST":
+            return HttpResponseNotAllowed(["POST"])
+
+        recipient = (request.POST.get("recipient") or request.user.email or settings.ADMIN_EMAIL).strip()
+        changelist_url = reverse("admin:core_smtpsetting_changelist")
+
+        if not recipient:
+            self.message_user(request, _("Please provide a recipient email for test delivery."), level=messages.ERROR)
+            return HttpResponseRedirect(changelist_url)
+
+        try:
+            send_smtp_email(
+                subject="PrimeLogicTech SMTP Test",
+                message="SMTP test email sent successfully from the admin panel.",
+                recipient_list=[recipient],
+            )
+            self.message_user(request, _("Test email sent successfully."), level=messages.SUCCESS)
+        except Exception as exc:
+            self.message_user(request, _("Test email failed: %(error)s") % {"error": str(exc)}, level=messages.ERROR)
+
+        return HttpResponseRedirect(changelist_url)

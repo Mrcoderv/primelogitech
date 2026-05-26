@@ -1,0 +1,13 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  <li>
+    <form method="post" action="{% url 'admin:core_smtpsetting_test_email' %}" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
+      {% csrf_token %}
+      <input type="email" name="recipient" placeholder="{% trans 'Recipient email' %}" required style="min-width:260px; padding:6px 8px;">
+      <button type="submit" class="button">{% trans "Test Email" %}</button>
+    </form>
+  </li>
+{% endblock %}

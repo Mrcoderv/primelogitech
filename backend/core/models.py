@@ -153,6 +153,13 @@ class ContactMessage(models.Model):
     email      = models.EmailField()
     subject    = models.CharField(max_length=200)
     message    = models.TextField()
+    assigned_user = models.ForeignKey(
+        "AdminUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_contact_messages",
+    )
     is_read    = models.BooleanField(default=False)
     action_done = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -185,6 +192,7 @@ class AdminUser(models.Model):
     
     username       = models.CharField(max_length=150, unique=True)
     email          = models.EmailField(unique=True)
+    email_notifications_enabled = models.BooleanField(default=True)
     password_hash  = models.CharField(max_length=255)
     role           = models.CharField(max_length=20, choices=ROLE_CHOICES, default='editor')
     is_active      = models.BooleanField(default=True)
@@ -202,6 +210,40 @@ class AdminUser(models.Model):
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
+
+
+class SMTPSetting(models.Model):
+    SMTP_KEYS = [
+        ("SMTP_HOST", "SMTP Host"),
+        ("SMTP_PORT", "SMTP Port"),
+        ("SMTP_USER", "SMTP User"),
+        ("SMTP_PASS", "SMTP Password"),
+    ]
+
+    key = models.CharField(max_length=30, choices=SMTP_KEYS, unique=True)
+    value = models.TextField(blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["key"]
+        verbose_name = "SMTP Setting"
+        verbose_name_plural = "SMTP Settings"
+
+    def __str__(self):
+        return self.key
+
+    @classmethod
+    def get_value(cls, key, default=""):
+        try:
+            item = cls.objects.get(key=key)
+            return item.value
+        except cls.DoesNotExist:
+            return default
+
+    @classmethod
+    def ensure_defaults(cls):
+        for key, _ in cls.SMTP_KEYS:
+            cls.objects.get_or_create(key=key, defaults={"value": ""})
 
 
 class ImageAsset(models.Model):

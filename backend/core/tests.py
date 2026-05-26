@@ -18,11 +18,14 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
+from unittest.mock import patch
 
 from .models import (
     SiteContent, Project, TeamMember, Service,
     Testimonial, Job, ContactMessage, NewsletterSubscriber,
+    AdminUser, SMTPSetting,
 )
+from .email_utils import get_smtp_config
 
 # Disable SSL redirect in tests so HTTP requests don't get 301'd
 _NO_SSL = override_settings(SECURE_SSL_REDIRECT=False)
@@ -172,6 +175,34 @@ class ContactMessageModelTest(TestCase):
         self.assertFalse(self.msg.is_read)
 
 
+@override_settings(
+    EMAIL_HOST="smtp.env.example.com",
+    EMAIL_PORT=2525,
+    EMAIL_HOST_USER="env-user@example.com",
+    EMAIL_HOST_PASSWORD="env-pass",
+    EMAIL_USE_TLS=True,
+)
+class SMTPConfigTestCase(TestCase):
+    def test_falls_back_to_env_when_db_settings_missing(self):
+        config = get_smtp_config()
+        self.assertEqual(config["host"], "smtp.env.example.com")
+        self.assertEqual(config["port"], 2525)
+        self.assertEqual(config["username"], "env-user@example.com")
+        self.assertEqual(config["password"], "env-pass")
+
+    def test_prefers_database_values_when_present(self):
+        SMTPSetting.objects.create(key="SMTP_HOST", value="smtp.db.example.com")
+        SMTPSetting.objects.create(key="SMTP_PORT", value="1025")
+        SMTPSetting.objects.create(key="SMTP_USER", value="db-user@example.com")
+        SMTPSetting.objects.create(key="SMTP_PASS", value="db-pass")
+
+        config = get_smtp_config()
+        self.assertEqual(config["host"], "smtp.db.example.com")
+        self.assertEqual(config["port"], 1025)
+        self.assertEqual(config["username"], "db-user@example.com")
+        self.assertEqual(config["password"], "db-pass")
+
+
 class NewsletterSubscriberModelTest(TestCase):
     def setUp(self):
         self.sub = NewsletterSubscriber.objects.create(email="test@example.com")
@@ -277,6 +308,56 @@ class PublicAPITestCase(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         self.assertTrue(resp.data['success'])
         self.assertEqual(ContactMessage.objects.count(), 1)
+
+    @patch("core.views.send_smtp_email")
+    def test_contact_assigns_notifiable_user_and_sends_email(self, mock_send_smtp_email):
+        assigned = AdminUser.objects.create(
+            username="notify_user",
+            email="notify@example.com",
+            password_hash="hashed",
+            role="editor",
+            email_notifications_enabled=True,
+            is_active=True,
+        )
+        AdminUser.objects.create(
+            username="disabled_notify",
+            email="disabled@example.com",
+            password_hash="hashed",
+            role="editor",
+            email_notifications_enabled=False,
+            is_active=True,
+        )
+        payload = {
+            "name": "Assigned User",
+            "email": "sender@example.com",
+            "subject": "Need support",
+            "message": "Please contact me",
+        }
+
+        resp = self.client.post("/api/contact/", payload, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        message = ContactMessage.objects.latest("id")
+        self.assertEqual(message.assigned_user_id, assigned.id)
+        mock_send_smtp_email.assert_called_once()
+        self.assertEqual(
+            mock_send_smtp_email.call_args.kwargs["recipient_list"],
+            ["notify@example.com"],
+        )
+
+    @patch("core.views.send_smtp_email")
+    def test_contact_without_notifiable_user_still_saves_message(self, mock_send_smtp_email):
+        payload = {
+            "name": "No Receiver",
+            "email": "sender@example.com",
+            "subject": "General inquiry",
+            "message": "No one assigned",
+        }
+
+        resp = self.client.post("/api/contact/", payload, format="json")
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        message = ContactMessage.objects.latest("id")
+        self.assertIsNone(message.assigned_user)
+        mock_send_smtp_email.assert_not_called()
 
     def test_contact_submit_missing_fields(self):
         resp = self.client.post('/api/contact/', {'name': 'Bob'}, format='json')

@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
 from django.conf import settings
 from .models import *
+from .models import SiteContent
 from .serializers import *
 from .permissions import CanManageAdminUsers  # <-- Added import
 from .email_utils import send_smtp_email
@@ -103,11 +104,15 @@ class ContactCreateView(APIView):
             )
             msg = s.save(assigned_user=assigned_user)
             try:
-                if assigned_user:
+                assigned_user_email = (getattr(assigned_user, "email", "") or "").strip()
+                fallback_contact_email = (getattr(SiteContent.load(), "contact_email", "") or "").strip()
+                recipient_email = assigned_user_email or fallback_contact_email or (settings.ADMIN_EMAIL or "").strip()
+                # Always forward contact messages: assigned user first, then Site Content contact email fallback.
+                if recipient_email:
                     send_smtp_email(
                     subject=f"[PLT Contact] {msg.subject}",
                     message=f"From: {msg.name} <{msg.email}>\n\n{msg.message}",
-                    recipient_list=[assigned_user.email],
+                    recipient_list=[recipient_email],
                     )
             except Exception:
                 pass

@@ -473,6 +473,7 @@ export async function createAdminUser(payload) {
     return data;
   } catch (error) {
     console.error('[API] Failed to create admin user:', error.message);
+    console.error('[API] Error details:', error?.response?.data);
     throw error;
   }
 }

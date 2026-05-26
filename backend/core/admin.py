@@ -10,8 +10,8 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import SiteContent, Project, TeamMember, Service, Testimonial, Job, ContactMessage, NewsletterSubscriber
 
-admin.site.site_header = "PrimeLogitech Admin"
-admin.site.site_title = "PrimeLogitech Admin"
+admin.site.site_header = "PrimeLogictech Admin"
+admin.site.site_title = "PrimeLogictech Admin"
 admin.site.index_title = "Dashboard"
 admin.site.index_template = "admin/custom_index.html"
 

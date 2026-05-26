@@ -37,6 +37,8 @@ urlpatterns = [
     path('api/admin/contacts/<int:pk>/', AdminContactDetailView.as_view()),
     path('api/admin/contacts/<int:pk>/status/', AdminContactStatusView.as_view()),
     path('api/admin/newsletter/', AdminNewsletterListView.as_view()),
+    path('api/admin/smtp-settings/', AdminSMTPSettingsView.as_view()),
+    path('api/admin/smtp-settings/test-email/', AdminSMTPTestEmailView.as_view()),
     
     # Admin user management
     path('api/admin/users/', AdminUserListCreateView.as_view()),

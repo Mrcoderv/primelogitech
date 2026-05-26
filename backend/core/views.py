@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
+from django.conf import settings
 from .models import *
 from .serializers import *
 from .permissions import CanManageAdminUsers  # <-- Added import
@@ -231,6 +232,68 @@ class AdminNewsletterListView(generics.ListAPIView):
     serializer_class = NewsletterSubscriberSerializer
     permission_classes = [IsAdminUser]
 
+
+class AdminSMTPSettingsView(APIView):
+    permission_classes = [CanManageAdminUsers]
+
+    def get(self, request):
+        SMTPSetting.ensure_defaults()
+        settings_map = {
+            item.key: item.value
+            for item in SMTPSetting.objects.all()
+        }
+        return Response(settings_map, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        SMTPSetting.ensure_defaults()
+        editable_keys = {"SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS"}
+
+        for key in editable_keys:
+            if key in request.data:
+                SMTPSetting.objects.update_or_create(
+                    key=key,
+                    defaults={"value": str(request.data.get(key, "") or "")},
+                )
+
+        settings_map = {
+            item.key: item.value
+            for item in SMTPSetting.objects.all()
+        }
+        return Response(settings_map, status=status.HTTP_200_OK)
+
+
+class AdminSMTPTestEmailView(APIView):
+    permission_classes = [CanManageAdminUsers]
+
+    def post(self, request):
+        recipient = (
+            request.data.get("recipient")
+            or getattr(request.user, "email", "")
+            or settings.ADMIN_EMAIL
+        )
+        recipient = (recipient or "").strip()
+        if not recipient:
+            return Response(
+                {"success": False, "error": "Recipient email is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            send_smtp_email(
+                subject="PrimeLogicTech SMTP Test",
+                message="SMTP test email sent successfully from the admin API.",
+                recipient_list=[recipient],
+            )
+            return Response(
+                {"success": True, "message": "Test email sent successfully."},
+                status=status.HTTP_200_OK,
+            )
+        except Exception:
+            return Response(
+                {"success": False, "error": "Test email failed."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 # ── ADMIN USER MANAGEMENT ──────────────────────────────────────
 
 from .serializers import AdminUserCreateSerializer, AdminUserUpdateSerializer, PasswordResetSerializer
@@ -246,7 +309,20 @@ class AdminUserListCreateView(generics.ListCreateAPIView):
         return AdminUserSerializer
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user.username)
+        created_user = serializer.save(created_by=self.request.user.username)
+        if created_user.email_notifications_enabled and created_user.email:
+            try:
+                send_smtp_email(
+                    subject="Welcome to PrimeLogicTech",
+                    message=(
+                        f"Hi {created_user.username},\n\n"
+                        "Your account has been created successfully."
+                    ),
+                    recipient_list=[created_user.email],
+                )
+            except Exception:
+                pass
+        return created_user
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

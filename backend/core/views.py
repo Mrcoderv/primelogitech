@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from .models import *
 from .serializers import *
-
+from .permissions import CanManageAdminUsers  # <-- Added import
 
 # ── AUTHENTICATION ────────────────────────────────────────────
 
@@ -120,7 +120,6 @@ class NewsletterSubscribeView(APIView):
             sub.save()
         return Response({'success': True}, status=201)
 
-
 # ── ADMIN ONLY ────────────────────────────────────────────────
 
 class AdminSiteContentView(APIView):
@@ -194,7 +193,6 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = ContactMessageSerializer
     permission_classes = [IsAdminUser]
 
-
 class AdminContactStatusView(APIView):
     permission_classes = [IsAdminUser]
     
@@ -217,12 +215,10 @@ class AdminContactStatusView(APIView):
         serializer = ContactMessageSerializer(contact)
         return Response(serializer.data, status=200)
 
-
 class AdminNewsletterListView(generics.ListAPIView):
     queryset = NewsletterSubscriber.objects.all()
     serializer_class = NewsletterSubscriberSerializer
     permission_classes = [IsAdminUser]
-
 
 # ── ADMIN USER MANAGEMENT ──────────────────────────────────────
 
@@ -256,7 +252,6 @@ class AdminUserListCreateView(generics.ListCreateAPIView):
             headers=headers
         )
 
-
 class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = AdminUser.objects.all()
     serializer_class = AdminUserSerializer
@@ -281,7 +276,6 @@ class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
             status=status.HTTP_200_OK
         )
 
-
 class AdminUserResetPasswordView(APIView):
     permission_classes = [CanManageAdminUsers]
 
@@ -303,7 +297,6 @@ class AdminUserResetPasswordView(APIView):
             'message': f"Password reset successfully for user '{user.username}'"
         })
 
-
 # ── IMAGE ASSET MANAGEMENT ────────────────────────────────────
 
 class ImageAssetListCreateView(generics.ListCreateAPIView):
@@ -313,7 +306,6 @@ class ImageAssetListCreateView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         serializer.save(uploaded_by=self.request.user.username if hasattr(self.request.user, 'username') else 'admin')
-
 
 class ImageAssetDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ImageAsset.objects.all()
@@ -329,7 +321,6 @@ class ImageAssetDetailView(generics.RetrieveUpdateDestroyAPIView):
             except Exception:
                 pass
         instance.delete()
-
 
 class ImageAssetByTypeView(generics.ListAPIView):
     serializer_class = ImageAssetSerializer

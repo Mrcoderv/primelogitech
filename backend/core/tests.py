@@ -229,6 +229,11 @@ class PublicAPITestCase(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn('hero_badge', resp.data)
 
+    def test_health_endpoint(self):
+        resp = self.client.get('/api/health/')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.data, {'ok': True})
+
     def test_get_projects(self):
         resp = self.client.get('/api/projects/')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)

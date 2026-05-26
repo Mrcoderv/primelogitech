@@ -1,5 +1,12 @@
 # Admin Panel Setup - Quick Start
 
+## ⚠️ Admin Access Update
+
+- The React admin panel at `/secret-admin` has been removed.
+- All administration is now handled only in Django admin:
+  - Local: `http://localhost:8000/admin/`
+  - Production: `https://primelogitech-backend.onrender.com/admin/`
+
 ## ✅ What Was Set Up
 
 Your Django admin panel is now fully configured with:

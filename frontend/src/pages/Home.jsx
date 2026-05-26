@@ -8,6 +8,7 @@ import TestimonialCard from '../components/TestimonialCard';
 import CTASection from '../components/CTASection';
 import BrandLogo from '../components/BrandLogo';
 import { fetchSiteContent, fetchProjects, fetchServices, fetchTestimonials } from '../services/api';
+import { setSeoMeta, setStructuredData, getOrganizationSchema, getLocalBusinessSchema } from '../utils/seo';
 
 export default function Home() {
   const [projects, setProjects] = useState([]);

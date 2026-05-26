@@ -24,6 +24,8 @@ import {
   Loader2,
   Image,
   UserCog,
+  Eye,
+  AlertCircle,
 } from 'lucide-react';
 import StatCard from '../../components/StatCard';
 
@@ -41,6 +43,7 @@ const cards = [
 
 export default function AdminDashboard() {
   const [counts, setCounts] = useState(null);
+  const [unreadContacts, setUnreadContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -69,6 +72,9 @@ export default function AdminDashboard() {
           fetchAdminImages(),
         ]);
 
+        // Filter unread contacts
+        const unread = contacts.filter(c => !c.is_read).slice(0, 5);
+        
         setCounts({
           projects: projects.length,
           team: team.length,
@@ -80,6 +86,8 @@ export default function AdminDashboard() {
           images: images.length,
           adminUsers: adminUsers.length,
         });
+        
+        setUnreadContacts(unread);
       } catch {
         setError('Failed to load dashboard data.');
       } finally {
@@ -172,6 +180,70 @@ export default function AdminDashboard() {
             </div>
           </Link>
         </div>
+      </div>
+
+      {/* Unread Contact Messages */}
+      <div className="mt-10">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <AlertCircle size={20} className="text-orange-400" />
+            Unread Messages
+          </h2>
+          {unreadContacts.length > 0 && (
+            <Link
+              to="/secret-admin/contacts"
+              className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1"
+            >
+              View all <ArrowRight size={14} />
+            </Link>
+          )}
+        </div>
+
+        {unreadContacts.length === 0 ? (
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 text-center">
+            <Mail size={32} className="text-gray-600 mx-auto mb-2" />
+            <p className="text-gray-400">No unread messages</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {unreadContacts.map((contact) => (
+              <div
+                key={contact.id}
+                className="bg-gray-900 border border-orange-500/30 rounded-xl p-4 hover:border-orange-500/50 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <p className="font-semibold text-white flex items-center gap-2">
+                      <Eye size={16} className="text-orange-400" />
+                      {contact.name}
+                    </p>
+                    <p className="text-sm text-gray-400 mt-1">{contact.subject}</p>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {new Date(contact.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-300 line-clamp-2 mb-3">
+                  {contact.message}
+                </p>
+                <div className="flex items-center justify-between">
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    {contact.email}
+                  </a>
+                  <Link
+                    to="/secret-admin/contacts"
+                    className="text-xs bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    Reply
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

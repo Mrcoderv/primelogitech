@@ -71,20 +71,34 @@ export default function AdminUsers() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setError('');
+    
+    // Validation
+    if (!form.email) {
+      setError('Email is required.');
+      return;
+    }
+    
+    if (editing === 'new') {
+      if (!form.username || form.username.trim().length === 0) {
+        setError('Username is required for new users.');
+        return;
+      }
+      if (!form.password || form.password.length < 8) {
+        setError('Password must be at least 8 characters for new users.');
+        return;
+      }
+    }
+    
     setSaving(true);
     try {
       const payload = {
         email: form.email,
         role: form.role,
-        permissions: form.permissions,
+        permissions: form.permissions || {},
       };
 
       if (editing === 'new') {
-        if (!form.username || !form.password) {
-          setError('Username and password required for new users.');
-          setSaving(false);
-          return;
-        }
         await createAdminUser({
           ...payload,
           username: form.username,
@@ -95,9 +109,12 @@ export default function AdminUsers() {
       }
 
       setEditing(null);
+      resetForm();
       await load();
-    } catch {
-      setError('Failed to save user.');
+      setError('');
+    } catch (err) {
+      const errorMessage = err?.response?.data?.detail || err?.message || 'Failed to save user.';
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }

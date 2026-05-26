@@ -194,6 +194,30 @@ class AdminContactDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = ContactMessageSerializer
     permission_classes = [IsAdminUser]
 
+
+class AdminContactStatusView(APIView):
+    permission_classes = [IsAdminUser]
+    
+    def patch(self, request, pk):
+        try:
+            contact = ContactMessage.objects.get(pk=pk)
+        except ContactMessage.DoesNotExist:
+            return Response({'error': 'Contact message not found'}, status=404)
+        
+        # Update is_read status
+        if 'is_read' in request.data:
+            contact.is_read = request.data.get('is_read', contact.is_read)
+        
+        # Update action_done status
+        if 'action_done' in request.data:
+            contact.action_done = request.data.get('action_done', contact.action_done)
+        
+        contact.save()
+        
+        serializer = ContactMessageSerializer(contact)
+        return Response(serializer.data, status=200)
+
+
 class AdminNewsletterListView(generics.ListAPIView):
     queryset = NewsletterSubscriber.objects.all()
     serializer_class = NewsletterSubscriberSerializer

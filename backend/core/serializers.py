@@ -58,11 +58,21 @@ class AdminUserCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = AdminUser
-        fields = ['username', 'email', 'password', 'role', 'permissions']
+        fields = ['username', 'email', 'password', 'role', 'permissions', 'is_active']
     
     def create(self, validated_data):
         from django.contrib.auth.hashers import make_password
-        validated_data['password_hash'] = make_password(validated_data.pop('password'))
+        password = validated_data.pop('password')
+        validated_data['password_hash'] = make_password(password)
+        
+        # Set default permissions if not provided
+        if 'permissions' not in validated_data or not validated_data['permissions']:
+            validated_data['permissions'] = {}
+        
+        # Set default is_active if not provided
+        if 'is_active' not in validated_data:
+            validated_data['is_active'] = True
+        
         return AdminUser.objects.create(**validated_data)
 
 

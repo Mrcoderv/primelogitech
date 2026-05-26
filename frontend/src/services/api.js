@@ -445,6 +445,16 @@ export async function fetchAdminContact(id) {
   }
 }
 
+export async function updateContactStatus(id, payload) {
+  try {
+    const { data } = await api.patch(`/api/admin/contacts/${id}/status/`, payload);
+    return data;
+  } catch (error) {
+    console.error('[API] Failed to update contact status:', error.message);
+    throw error;
+  }
+}
+
 // ─── Admin: Users ────────────────────────────────────────────────────────────
 
 export async function fetchAdminUsers() {

@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   fetchAdminContacts,
   fetchAdminContact,
+  updateContactStatus,
 } from '../../services/api';
-import { Mail, ChevronDown, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, ChevronDown, Loader2, Eye, EyeOff, CheckCircle, Circle } from 'lucide-react';
 
 export default function AdminContacts() {
   const [contacts, setContacts] = useState([]);
@@ -12,6 +13,7 @@ export default function AdminContacts() {
   const [selected, setSelected] = useState(null);
   const [detail, setDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   const loadContacts = useCallback(async () => {
     setLoading(true);
@@ -41,6 +43,34 @@ export default function AdminContacts() {
       setDetail(null);
     } finally {
       setDetailLoading(false);
+    }
+  }
+
+  async function toggleReadStatus(id) {
+    setStatusUpdating(true);
+    try {
+      const updated = await updateContactStatus(id, { is_read: !detail.is_read });
+      setDetail(updated);
+      // Update in contacts list
+      setContacts(contacts.map(c => c.id === id ? updated : c));
+    } catch (err) {
+      console.error('Failed to update read status:', err);
+    } finally {
+      setStatusUpdating(false);
+    }
+  }
+
+  async function toggleActionDone(id) {
+    setStatusUpdating(true);
+    try {
+      const updated = await updateContactStatus(id, { action_done: !detail.action_done });
+      setDetail(updated);
+      // Update in contacts list
+      setContacts(contacts.map(c => c.id === id ? updated : c));
+    } catch (err) {
+      console.error('Failed to update action status:', err);
+    } finally {
+      setStatusUpdating(false);
     }
   }
 
@@ -142,17 +172,38 @@ export default function AdminContacts() {
                           <span className="text-gray-500">Message</span>
                           <p className="text-white whitespace-pre-wrap">{detail.message}</p>
                         </div>
-                        <div className="flex items-center gap-4 pt-2 text-xs text-gray-500">
+                        <div className="pt-4 border-t border-gray-700">
+                          <p className="text-gray-500 text-xs mb-3">Status</p>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => toggleReadStatus(detail.id)}
+                              disabled={statusUpdating}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm font-medium ${
+                                detail.is_read
+                                  ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                              } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                              {detail.is_read ? <Eye size={16} /> : <EyeOff size={16} />}
+                              {detail.is_read ? 'Seen' : 'Unseen'}
+                            </button>
+                            <button
+                              onClick={() => toggleActionDone(detail.id)}
+                              disabled={statusUpdating}
+                              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm font-medium ${
+                                detail.action_done
+                                  ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                              } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                              {detail.action_done ? <CheckCircle size={16} /> : <Circle size={16} />}
+                              {detail.action_done ? 'Action Done' : 'Action Pending'}
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 pt-3 text-xs text-gray-500">
                           <span>
                             Received: {new Date(detail.created_at).toLocaleString()}
-                          </span>
-                          <span
-                            className={`flex items-center gap-1 ${
-                              detail.is_read ? 'text-green-400' : 'text-yellow-400'
-                            }`}
-                          >
-                            {detail.is_read ? <Eye size={14} /> : <EyeOff size={14} />}
-                            {detail.is_read ? 'Read' : 'Unread'}
                           </span>
                         </div>
                       </div>

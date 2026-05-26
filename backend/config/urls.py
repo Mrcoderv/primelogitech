@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/admin/jobs/<int:pk>/', AdminJobDetailView.as_view()),
     path('api/admin/contacts/', AdminContactListView.as_view()),
     path('api/admin/contacts/<int:pk>/', AdminContactDetailView.as_view()),
+    path('api/admin/contacts/<int:pk>/status/', AdminContactStatusView.as_view()),
     path('api/admin/newsletter/', AdminNewsletterListView.as_view()),
     
     # Admin user management

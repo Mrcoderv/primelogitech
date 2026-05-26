@@ -1,0 +1,42 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+  <li>
+    <button type="button" class="button" id="copy-active-subscriber-emails" data-emails="{{ active_emails_csv|escapejs }}">
+      Copy active emails
+    </button>
+  </li>
+  {{ block.super }}
+{% endblock %}
+
+{% block content_title %}
+  {{ block.super }}
+  <div class="newsletter-stats-strip">
+    <span><strong>Total:</strong> {{ total_subscribers }}</span>
+    <span><strong>Active:</strong> {{ active_subscribers }}</span>
+    <span><strong>Today:</strong> {{ today_subscribers }}</span>
+  </div>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const button = document.getElementById("copy-active-subscriber-emails");
+      if (!button) return;
+      button.addEventListener("click", async function () {
+        const emails = button.dataset.emails || "";
+        if (!emails) {
+          alert("No active subscriber emails found.");
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(emails);
+          alert("Active subscriber emails copied to clipboard.");
+        } catch (error) {
+          window.prompt("Copy active emails:", emails);
+        }
+      });
+    });
+  </script>
+{% endblock %}

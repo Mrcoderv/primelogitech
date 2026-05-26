@@ -1,7 +1,19 @@
 from django import forms
 from django.contrib import admin
+from django.contrib import messages
+from django.http import HttpResponseNotAllowed, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404
+from django.urls import path, reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from .models import SiteContent, Project, TeamMember, Service, Testimonial, Job, ContactMessage, NewsletterSubscriber
+
+admin.site.site_header = "PrimeLogitech Admin"
+admin.site.site_title = "PrimeLogitech Admin"
+admin.site.index_title = "Dashboard"
+admin.site.index_template = "admin/custom_index.html"
 
 
 class ProjectAdminForm(forms.ModelForm):
@@ -126,10 +138,70 @@ class JobAdmin(admin.ModelAdmin):
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "email", "subject", "is_read", "created_at")
-    list_filter = ("is_read", "created_at")
+    list_display = ("name", "email", "subject", "is_read", "action_done", "created_at")
+    list_filter = ("is_read", "action_done", "created_at")
     search_fields = ("name", "email", "subject", "message")
     readonly_fields = ("name", "email", "subject", "message", "created_at")
+    actions = ("mark_seen", "mark_unseen", "mark_action_done", "mark_action_not_done")
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "quick-update/<int:pk>/",
+                self.admin_site.admin_view(self.quick_update_status),
+                name="core_contactmessage_quick_update",
+            ),
+        ]
+        return custom_urls + urls
+
+    def quick_update_status(self, request, pk):
+        if request.method != "POST":
+            return HttpResponseNotAllowed(["POST"])
+
+        message_obj = get_object_or_404(ContactMessage, pk=pk)
+        if not self.has_change_permission(request, message_obj):
+            self.message_user(request, _("You do not have permission to update this message."), level=messages.ERROR)
+            return HttpResponseNotAllowed(["POST"])
+
+        field_name = request.POST.get("field")
+        new_value = request.POST.get("value")
+        next_url = request.POST.get("next") or reverse("admin:index")
+        if not url_has_allowed_host_and_scheme(
+            url=next_url,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+        ):
+            next_url = reverse("admin:index")
+
+        if field_name not in {"is_read", "action_done"} or new_value not in {"0", "1"}:
+            self.message_user(request, _("Invalid status update request."), level=messages.ERROR)
+            return HttpResponseNotAllowed(["POST"])
+
+        setattr(message_obj, field_name, new_value == "1")
+        message_obj.save(update_fields=[field_name])
+        self.message_user(request, _("Message status updated."), level=messages.SUCCESS)
+        return HttpResponseRedirect(next_url)
+
+    @admin.action(description="Mark selected messages as seen")
+    def mark_seen(self, request, queryset):
+        updated_count = queryset.update(is_read=True)
+        self.message_user(request, _("%(count)s message(s) marked as seen.") % {"count": updated_count}, level=messages.SUCCESS)
+
+    @admin.action(description="Mark selected messages as unseen")
+    def mark_unseen(self, request, queryset):
+        updated_count = queryset.update(is_read=False)
+        self.message_user(request, _("%(count)s message(s) marked as unseen.") % {"count": updated_count}, level=messages.SUCCESS)
+
+    @admin.action(description="Mark selected messages as action done")
+    def mark_action_done(self, request, queryset):
+        updated_count = queryset.update(action_done=True)
+        self.message_user(request, _("%(count)s message(s) marked as done.") % {"count": updated_count}, level=messages.SUCCESS)
+
+    @admin.action(description="Mark selected messages as action not done")
+    def mark_action_not_done(self, request, queryset):
+        updated_count = queryset.update(action_done=False)
+        self.message_user(request, _("%(count)s message(s) marked as not done.") % {"count": updated_count}, level=messages.SUCCESS)
 
 
 @admin.register(NewsletterSubscriber)
@@ -138,3 +210,33 @@ class NewsletterSubscriberAdmin(admin.ModelAdmin):
     list_filter = ("is_active", "subscribed_at")
     search_fields = ("email",)
     readonly_fields = ("subscribed_at",)
+    change_list_template = "admin/core/newslettersubscriber/change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "active-emails/",
+                self.admin_site.admin_view(self.active_emails_view),
+                name="core_newslettersubscriber_active_emails",
+            ),
+        ]
+        return custom_urls + urls
+
+    def changelist_view(self, request, extra_context=None):
+        active_emails = NewsletterSubscriber.objects.filter(is_active=True).values_list("email", flat=True)
+        today_count = NewsletterSubscriber.objects.filter(subscribed_at__date=timezone.localdate()).count()
+        extra_context = extra_context or {}
+        extra_context.update(
+            {
+                "active_emails_csv": ",".join(active_emails),
+                "total_subscribers": NewsletterSubscriber.objects.count(),
+                "active_subscribers": NewsletterSubscriber.objects.filter(is_active=True).count(),
+                "today_subscribers": today_count,
+            }
+        )
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def active_emails_view(self, request):
+        emails = NewsletterSubscriber.objects.filter(is_active=True).values_list("email", flat=True)
+        return JsonResponse({"emails": ",".join(emails)})

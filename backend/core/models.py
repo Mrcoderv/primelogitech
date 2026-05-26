@@ -211,6 +211,48 @@ class AdminUser(models.Model):
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
 
+    def save(self, *args, **kwargs):
+        from django.contrib.auth.hashers import identify_hasher, make_password
+
+        # Keep password_hash safe for API auth and Django admin login sync.
+        try:
+            identify_hasher(self.password_hash)
+        except ValueError:
+            self.password_hash = make_password(self.password_hash)
+
+        super().save(*args, **kwargs)
+        self._sync_django_staff_user()
+
+    def _sync_django_staff_user(self):
+        from django.contrib.auth import get_user_model
+
+        user_model = get_user_model()
+        defaults = {
+            "email": self.email,
+            "is_active": self.is_active,
+            "is_staff": True,
+            "is_superuser": self.role == "admin",
+        }
+        django_user, created = user_model.objects.get_or_create(
+            username=self.username,
+            defaults=defaults,
+        )
+
+        changed_fields = []
+        for field, value in defaults.items():
+            if getattr(django_user, field) != value:
+                setattr(django_user, field, value)
+                changed_fields.append(field)
+
+        if django_user.password != self.password_hash:
+            django_user.password = self.password_hash
+            changed_fields.append("password")
+
+        if created:
+            django_user.save()
+        elif changed_fields:
+            django_user.save(update_fields=changed_fields)
+
 
 class SMTPSetting(models.Model):
     SMTP_KEYS = [

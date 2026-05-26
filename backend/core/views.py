@@ -2,10 +2,59 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
 from .models import *
 from .serializers import *
+
+
+# ── AUTHENTICATION ────────────────────────────────────────────
+
+class AdminLoginView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        username = request.data.get('username', '').strip()
+        password = request.data.get('password', '').strip()
+        
+        if not username or not password:
+            return Response({'detail': 'Username and password are required'}, status=400)
+        
+        try:
+            admin_user = AdminUser.objects.get(username=username)
+        except AdminUser.DoesNotExist:
+            return Response({'detail': 'No active account found with the given credentials'}, status=401)
+        
+        if not admin_user.is_active:
+            return Response({'detail': 'Account is inactive'}, status=401)
+        
+        if not check_password(password, admin_user.password_hash):
+            return Response({'detail': 'No active account found with the given credentials'}, status=401)
+        
+        # Update last login
+        from django.utils import timezone
+        admin_user.last_login = timezone.now()
+        admin_user.save(update_fields=['last_login'])
+        
+        # Generate JWT tokens
+        refresh = RefreshToken()
+        refresh['user_id'] = admin_user.id
+        refresh['username'] = admin_user.username
+        refresh['email'] = admin_user.email
+        refresh['role'] = admin_user.role
+        
+        return Response({
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+            'user': {
+                'id': admin_user.id,
+                'username': admin_user.username,
+                'email': admin_user.email,
+                'role': admin_user.role,
+            }
+        }, status=200)
 
 
 # ── PUBLIC ────────────────────────────────────────────────────

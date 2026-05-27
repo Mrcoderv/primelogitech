@@ -60,7 +60,7 @@ export default function Footer({ siteContent: propContent }) {
               <BrandLogo size="md" eager />
               <div>
                 <div className="font-outfit font-bold text-xl tracking-tight text-white">
-                  Prime Logitech
+                  Prime Logic tech
                 </div>
                 <div className="text-sm text-brand-green/80">
                   Design. Develop. Deliver.
